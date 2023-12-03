@@ -7,8 +7,8 @@
 
 /*
  * Make sure that the code is compiled and ran (respectively, for Windows) as such:
- *  - javac -cp "postgresql-42.6.0.jar;." Client.java
- *  - java -cp "postgresql-42.6.0.jar;." Client
+ *  - javac -cp "postgresql-42.6.0.jar;." ArborDB.java
+ *  - java -cp "postgresql-42.6.0.jar;." ArborDB
  * 
  * Before attempting to connect, make sure that a DB session is active and all .sql file are executed via DataGrip
  */
