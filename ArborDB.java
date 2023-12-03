@@ -41,6 +41,7 @@ public class ArborDB {
                 System.out.println("Connection error. Please make sure that the database is active and that your username and password are correct.");
                 return;
             }
+            System.out.println("Connection established successfully.");
         } else { // If connection already exists (not null), no need to connect
             System.out.println("Already connected to database.");
             return;
