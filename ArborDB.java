@@ -115,34 +115,250 @@ public class ArborDB {
     }
 
     private static void addSpeciesToForest() {
-        
+    try {
+        CallableStatement call = connection.prepareCall("{ call addSpeciesToForest(?,?,?) }");
+        System.out.print("Enter forest_no: ");
+        call.setInt(1, Integer.parseInt(br.readLine()));
+        System.out.print("Enter genus: ");
+        call.setString(2, br.readLine());
+        System.out.print("Enter epithet: ");
+        call.setString(3, br.readLine());
+        call.execute();
+        System.out.println("Species added to forest successfully.");
+    } catch (SQLException e) {
+            System.out.println("SQL Error");
+            while (e != null) {
+                System.out.println("Message = " + e.getMessage());
+                System.out.println("SQLState = " + e.getSQLState());
+                System.out.println("SQL Code = " + e.getErrorCode());
+                e = e.getNextException();
+                }
+        } catch (IOException e) {
+            System.out.println("I/O error, returning to the main menu.");
+            return;
+        } catch (NumberFormatException e) {
+            System.out.println("The provided input is invalid, returning to the main menu.");
+            return;
+        }
     }
+
 
     private static void newWorker() {
+        CallableStatement call = connection.prepareCall("{ call newWorker(?,?,?,?,?,?) }");
+        System.out.print("Enter SSN: ");
+        call.setString(1, br.readLine());
+        System.out.print("Enter First name: ");
+        call.setString(2, br.readLine());
+        System.out.print("Enter Last name: ");
+        call.setString(3, br.readLine());
+        System.out.print("Enter Middle initial: ");
+        call.setString(4, br.readLine());
+        System.out.print("Enter Rank: ");
+        call.setString(5, br.readLine());
+        System.out.print("Enter State abbreviation: ");
+        call.setString(6, br.readLine());
+        call.execute();
+        System.out.println("Worker added successfully.");
+        } catch (SQLException e) {
+            System.out.println("SQL Error");
+            while (e != null) {
+                System.out.println("Message = " + e.getMessage());
+                System.out.println("SQLState = " + e.getSQLState());
+                System.out.println("SQL Code = " + e.getErrorCode());
+                e = e.getNextException();
+            }
+        } catch (IOException e) {
+            System.out.println("I/O error, returning to the main menu.");
+            return;
+        } catch (NumberFormatException e) {
+            System.out.println("The provided input is invalid, returning to the main menu.");
+            return;
+        }
+
+}
         
-    }
+   
 
     private static void employWorkerToState() {
-        
+          try {
+            CallableStatement call = connection.prepareCall("{ call employWorkerToState(?,?) }");
+            System.out.print("Enter State abbreviation: ");
+            call.setString(1, br.readLine());
+            System.out.print("Enter Worker SSN: ");
+            call.setString(2, br.readLine());
+            call.execute();
+            System.out.println("Worker employed to state successfully.");
+        } catch (SQLException e) {
+            System.out.println("SQL Error");
+            while (e != null) {
+                System.out.println("Message = " + e.getMessage());
+                System.out.println("SQLState = " + e.getSQLState());
+                System.out.println("SQL Code = " + e.getErrorCode());
+                e = e.getNextException();
+            }
+        } catch (IOException e) {
+            System.out.println("I/O error, returning to the main menu.");
+            return;
+        } catch (NumberFormatException e) {
+            System.out.println("The provided input is invalid, returning to the main menu.");
+            return;
+        }
+     
     }
 
     private static void placeSensor() {
+            try {
+            CallableStatement call = connection.prepareCall("{ call newWorker(?,?,?,?,?,?) }");
+            System.out.print("Enter SSN: ");
+            call.setString(1, br.readLine());
+            System.out.print("Enter First name: ");
+            call.setString(2, br.readLine());
+            System.out.print("Enter Last name: ");
+            call.setString(3, br.readLine());
+            System.out.print("Enter Middle initial: ");
+            call.setString(4, br.readLine());
+            System.out.print("Enter Rank: ");
+            call.setString(5, br.readLine());
+            System.out.print("Enter State abbreviation: ");
+            call.setString(6, br.readLine());
+            call.execute();
+            System.out.println("Worker added successfully.");
+        } catch (SQLException e) {
+            System.out.println("SQL Error");
+            while (e != null) {
+                System.out.println("Message = " + e.getMessage());
+                System.out.println("SQLState = " + e.getSQLState());
+                System.out.println("SQL Code = " + e.getErrorCode());
+                e = e.getNextException();
+            }
+        } catch (IOException e) {
+            System.out.println("I/O error, returning to the main menu.");
+            return;
+        } catch (NumberFormatException e) {
+            System.out.println("The provided input is invalid, returning to the main menu.");
+            return;
+        }
         
     }
 
     private static void generateReport() {
+            try {
+            CallableStatement call = connection.prepareCall("{ call placeSensor(?,?,?,?) }");
+            System.out.print("Enter Energy: ");
+            call.setInt(1, Integer.parseInt(br.readLine()));
+            System.out.print("Enter X Location: ");
+            call.setDouble(2, Double.parseDouble(br.readLine()));
+            System.out.print("Enter Y Location: ");
+            call.setDouble(3, Double.parseDouble(br.readLine()));
+            System.out.print("Enter Maintainer ID: ");
+            call.setString(4, br.readLine());
+            call.execute();
+            System.out.println("Sensor placed successfully.");
+        } catch (SQLException e) {
+            System.out.println("SQL Error");
+            while (e != null) {
+                System.out.println("Message = " + e.getMessage());
+                System.out.println("SQLState = " + e.getSQLState());
+                System.out.println("SQL Code = " + e.getErrorCode());
+                e = e.getNextException();
+            }
+        } catch (IOException e) {
+            System.out.println("I/O error, returning to the main menu.");
+            return;
+        } catch (NumberFormatException e) {
+            System.out.println("The provided input is invalid, returning to the main menu.");
+            return;
+        }
         
     }
 
     private static void removeSpeciesFromForest() {
+        try {
+        CallableStatement call = connection.prepareCall("{ call placeSensor(?,?,?,?) }");
+        System.out.print("Enter Energy: ");
+        call.setInt(1, Integer.parseInt(br.readLine()));
+        System.out.print("Enter X Location: ");
+        call.setDouble(2, Double.parseDouble(br.readLine()));
+        System.out.print("Enter Y Location: ");
+        call.setDouble(3, Double.parseDouble(br.readLine()));
+        System.out.print("Enter Maintainer ID: ");
+        call.setString(4, br.readLine());
+        call.execute();
+        System.out.println("Sensor placed successfully.");
+        } catch (SQLException e) {
+            System.out.println("SQL Error");
+            while (e != null) {
+                System.out.println("Message = " + e.getMessage());
+                System.out.println("SQLState = " + e.getSQLState());
+                System.out.println("SQL Code = " + e.getErrorCode());
+                e = e.getNextException();
+            }
+        } catch (IOException e) {
+            System.out.println("I/O error, returning to the main menu.");
+            return;
+        } catch (NumberFormatException e) {
+            System.out.println("The provided input is invalid, returning to the main menu.");
+            return;
+        }
         
     }
 
     private static void deleteWorker() {
+            try {
+            CallableStatement call = connection.prepareCall("{ call deleteWorker(?) }");
+            System.out.print("Enter Worker SSN: ");
+            String ssn = br.readLine();
+            call.setString(1, ssn);
+    
+            call.execute();
+            System.out.println("Worker with SSN " + ssn + " deleted successfully.");
+        } catch (SQLException e) {
+            System.out.println("SQL Error");
+            while (e != null) {
+                System.out.println("Message = " + e.getMessage());
+                System.out.println("SQLState = " + e.getSQLState());
+                System.out.println("SQL Code = " + e.getErrorCode());
+                e = e.getNextException();
+            }
+        } catch (IOException e) {
+            System.out.println("I/O error, returning to the main menu.");
+            return;
+        }
         
     }
 
     private static void moveSensor() {
+            try {
+            CallableStatement call = connection.prepareCall("{ call moveSensor(?,?,?) }");
+            System.out.print("Enter Sensor ID: ");
+            int sensorId = Integer.parseInt(br.readLine());
+            call.setInt(1, sensorId);
+            
+            System.out.print("Enter new X location: ");
+            double newX = Double.parseDouble(br.readLine());
+            call.setDouble(2, newX);
+            
+            System.out.print("Enter new Y location: ");
+            double newY = Double.parseDouble(br.readLine());
+            call.setDouble(3, newY);
+    
+            call.execute();
+            System.out.println("Sensor " + sensorId + " moved to new location successfully.");
+        } catch (SQLException e) {
+            System.out.println("SQL Error");
+            while (e != null) {
+                System.out.println("Message = " + e.getMessage());
+                System.out.println("SQLState = " + e.getSQLState());
+                System.out.println("SQL Code = " + e.getErrorCode());
+                e = e.getNextException();
+            }
+        } catch (IOException e) {
+            System.out.println("I/O error, returning to the main menu.");
+            return;
+        } catch (NumberFormatException e) {
+            System.out.println("The provided input is invalid, returning to the main menu.");
+            return;
+        }
         
     }
 
