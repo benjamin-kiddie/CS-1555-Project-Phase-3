@@ -49,11 +49,69 @@ public class ArborDB {
     }
 
     private static void addForest() {
-
+        try {
+            CallableStatement call = connection.prepareCall("{ call addForest( ?,?,?,?,?,?,? ) }");
+            System.out.print("Enter name: ");
+            call.setString(1, br.readLine());
+            System.out.print("Enter area: ");
+            call.setInt(2, Integer.parseInt(br.readLine()));
+            System.out.print("Enter acid level: ");
+            call.setDouble(3, Double.parseDouble(br.readLine()));
+            System.out.print("Enter minimum X value of MBR: ");
+            call.setDouble(4, Double.parseDouble(br.readLine()));
+            System.out.print("Enter maximum X value of MBR: ");
+            call.setDouble(5, Double.parseDouble(br.readLine()));
+            System.out.print("Enter minimum Y value of MBR: ");
+            call.setDouble(6, Double.parseDouble(br.readLine()));
+            System.out.print("Enter maximum Y value of MBR: ");
+            call.setDouble(7, Double.parseDouble(br.readLine()));
+            call.execute();
+        } catch (SQLException e) {
+            System.out.println("SQL Error");
+            while (e != null) {
+                System.out.println("Message = " + e.getMessage());
+                System.out.println("SQLState = " + e.getSQLState());
+                System.out.println("SQL Code = " + e.getErrorCode());
+                e = e.getNextException();
+            }
+        } catch (IOException e) {
+            System.out.println("I/O error, returning to main menu.");
+            return;
+        } catch (NumberFormatException e) {
+            System.out.println("The provided input is invalid, returning to main menu.");
+            return;
+        }
     }
 
     private static void addTreeSpecies() {
-        
+        try {
+            CallableStatement call = connection.prepareCall("{ call addTreeSpecies( ?,?,?,?,? ) }");
+            System.out.print("Enter genus: ");
+            call.setString(1, br.readLine());
+            System.out.print("Enter epithet: ");
+            call.setString(2, br.readLine());
+            System.out.print("Enter temperature: ");
+            call.setDouble(3, Double.parseDouble(br.readLine()));
+            System.out.print("Enter height: ");
+            call.setDouble(4, Double.parseDouble(br.readLine()));
+            System.out.print("Enter Raunkiaer life form specification: ");
+            call.setString(5, br.readLine());
+            call.execute();
+        } catch (SQLException e) {
+            System.out.println("SQL Error");
+            while (e != null) {
+                System.out.println("Message = " + e.getMessage());
+                System.out.println("SQLState = " + e.getSQLState());
+                System.out.println("SQL Code = " + e.getErrorCode());
+                e = e.getNextException();
+            }
+        } catch (IOException e) {
+            System.out.println("I/O error, returning to main menu.");
+            return;
+        } catch (NumberFormatException e) {
+            System.out.println("The provided input is invalid, returning to main menu.");
+            return;
+        }
     }
 
     private static void addSpeciesToForest() {
