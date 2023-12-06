@@ -144,6 +144,8 @@ public class ArborDB {
 
 
     private static void newWorker() {
+
+     try {
         CallableStatement call = connection.prepareCall("{ call newWorker(?,?,?,?,?,?) }");
         System.out.print("Enter SSN: ");
         call.setString(1, br.readLine());
@@ -207,7 +209,7 @@ public class ArborDB {
     }
 
     private static void placeSensor() {
-            try {
+         try {
             CallableStatement call = connection.prepareCall("{ call newWorker(?,?,?,?,?,?) }");
             System.out.print("Enter SSN: ");
             call.setString(1, br.readLine());
@@ -242,7 +244,7 @@ public class ArborDB {
     }
 
     private static void generateReport() {
-            try {
+        try {
             CallableStatement call = connection.prepareCall("{ call placeSensor(?,?,?,?) }");
             System.out.print("Enter Energy: ");
             call.setInt(1, Integer.parseInt(br.readLine()));
@@ -274,37 +276,37 @@ public class ArborDB {
 
     private static void removeSpeciesFromForest() {
         try {
-        CallableStatement call = connection.prepareCall("{ call placeSensor(?,?,?,?) }");
-        System.out.print("Enter Energy: ");
-        call.setInt(1, Integer.parseInt(br.readLine()));
-        System.out.print("Enter X Location: ");
-        call.setDouble(2, Double.parseDouble(br.readLine()));
-        System.out.print("Enter Y Location: ");
-        call.setDouble(3, Double.parseDouble(br.readLine()));
-        System.out.print("Enter Maintainer ID: ");
-        call.setString(4, br.readLine());
-        call.execute();
-        System.out.println("Sensor placed successfully.");
-        } catch (SQLException e) {
-            System.out.println("SQL Error");
-            while (e != null) {
-                System.out.println("Message = " + e.getMessage());
-                System.out.println("SQLState = " + e.getSQLState());
-                System.out.println("SQL Code = " + e.getErrorCode());
-                e = e.getNextException();
-            }
-        } catch (IOException e) {
-            System.out.println("I/O error, returning to the main menu.");
-            return;
-        } catch (NumberFormatException e) {
-            System.out.println("The provided input is invalid, returning to the main menu.");
-            return;
+            CallableStatement call = connection.prepareCall("{ call placeSensor(?,?,?,?) }");
+            System.out.print("Enter Energy: ");
+            call.setInt(1, Integer.parseInt(br.readLine()));
+            System.out.print("Enter X Location: ");
+            call.setDouble(2, Double.parseDouble(br.readLine()));
+            System.out.print("Enter Y Location: ");
+            call.setDouble(3, Double.parseDouble(br.readLine()));
+            System.out.print("Enter Maintainer ID: ");
+            call.setString(4, br.readLine());
+            call.execute();
+            System.out.println("Sensor placed successfully.");
+         } catch (SQLException e) {
+                System.out.println("SQL Error");
+                while (e != null) {
+                    System.out.println("Message = " + e.getMessage());
+                    System.out.println("SQLState = " + e.getSQLState());
+                    System.out.println("SQL Code = " + e.getErrorCode());
+                    e = e.getNextException();
+                }
+         } catch (IOException e) {
+                System.out.println("I/O error, returning to the main menu.");
+                return;
+         } catch (NumberFormatException e) {
+                System.out.println("The provided input is invalid, returning to the main menu.");
+                return;
         }
-        
+            
     }
 
     private static void deleteWorker() {
-            try {
+        try {
             CallableStatement call = connection.prepareCall("{ call deleteWorker(?) }");
             System.out.print("Enter Worker SSN: ");
             String ssn = br.readLine();
@@ -328,7 +330,7 @@ public class ArborDB {
     }
 
     private static void moveSensor() {
-            try {
+         try {
             CallableStatement call = connection.prepareCall("{ call moveSensor(?,?,?) }");
             System.out.print("Enter Sensor ID: ");
             int sensorId = Integer.parseInt(br.readLine());
@@ -363,39 +365,410 @@ public class ArborDB {
     }
 
     private static void removeWorkerFromState() {
+
+        try {
+            CallableStatement call = connection.prepareCall("{ call removeWorkerFromState(?,?) }");
+            System.out.print("Enter Worker SSN: ");
+            String ssn = br.readLine();
+            call.setString(1, ssn);
+            
+            System.out.print("Enter State Abbreviation: ");
+            String stateAbb = br.readLine();
+            call.setString(2, stateAbb);
+    
+            call.execute();
+            System.out.println("Worker " + ssn + " removed from state " + stateAbb + " successfully.");
+        } catch (SQLException e) {
+            System.out.println("SQL Error");
+            while (e != null) {
+                System.out.println("Message = " + e.getMessage());
+                System.out.println("SQLState = " + e.getSQLState());
+                System.out.println("SQL Code = " + e.getErrorCode());
+                e = e.getNextException();
+            }
+        } catch (IOException e) {
+            System.out.println("I/O error, returning to the main menu.");
+            return;
+        }
         
     }
 
     private static void removeSensor() {
-        
+
+        try {
+            CallableStatement call = connection.prepareCall("{ call removeSensor(?) }");
+            
+            System.out.print("Do you want to remove all sensors? (yes/no): ");
+            String response = br.readLine().toLowerCase();
+            
+            if (response.equals("yes")) {
+                call.setNull(1, Types.INTEGER);  // Null parameter to indicate removing all sensors
+            } else if (response.equals("no")) {
+                System.out.print("Enter Sensor ID to remove: ");
+                int sensorId = Integer.parseInt(br.readLine());
+                call.setInt(1, sensorId);
+            } else {
+                System.out.println("Invalid response. Returning to the main menu.");
+                return;
+            }
+    
+            call.execute();
+            
+            if (response.equals("yes")) {
+                System.out.println("All sensors removed successfully.");
+            } else {
+                System.out.println("Sensor removed successfully.");
+            }
+        } catch (SQLException e) {
+            System.out.println("SQL Error");
+            while (e != null) {
+                System.out.println("Message = " + e.getMessage());
+                System.out.println("SQLState = " + e.getSQLState());
+                System.out.println("SQL Code = " + e.getErrorCode());
+                e = e.getNextException();
+            }
+        } catch (IOException e) {
+            System.out.println("I/O error, returning to the main menu.");
+            return;
+        } catch (NumberFormatException e) {
+            System.out.println("The provided input is invalid, returning to the main menu.");
+            return;
+        }
+            
     }
 
     private static void listSensors() {
+        try {
+            CallableStatement call = connection.prepareCall("{ call listSensors(?) }");
+    
+            System.out.print("Enter Forest ID: ");
+            int forestId = Integer.parseInt(br.readLine());
+            call.setInt(1, forestId);
+    
+            ResultSet resultSet = call.executeQuery();
+    
+            if (!resultSet.next()) {
+                System.out.println("No sensors found in the specified forest.");
+            } else {
+                System.out.println("Sensors in Forest " + forestId + ":");
+                do {
+                    int sensorId = resultSet.getInt("sensor_id");
+                    Timestamp lastCharged = resultSet.getTimestamp("last_charged");
+                    int energy = resultSet.getInt("energy");
+                    Timestamp lastRead = resultSet.getTimestamp("last_read");
+                    double x = resultSet.getDouble("X");
+                    double y = resultSet.getDouble("Y");
+                    String maintainerId = resultSet.getString("maintainer_id");
+    
+                    System.out.println("Sensor ID: " + sensorId +
+                            ", Last Charged: " + lastCharged +
+                            ", Energy: " + energy +
+                            ", Last Read: " + lastRead +
+                            ", X: " + x +
+                            ", Y: " + y +
+                            ", Maintainer ID: " + maintainerId);
+                } while (resultSet.next());
+            }
+        } catch (SQLException e) {
+            System.out.println("SQL Error");
+            while (e != null) {
+                System.out.println("Message = " + e.getMessage());
+                System.out.println("SQLState = " + e.getSQLState());
+                System.out.println("SQL Code = " + e.getErrorCode());
+                e = e.getNextException();
+            }
+        } catch (IOException | NumberFormatException e) {
+            System.out.println("Invalid input or I/O error, returning to the main menu.");
+            return;
+        }
         
     }
 
     private static void listMaintainedSensors() {
+         try {
+            CallableStatement call = connection.prepareCall("{ call listSensors(?) }");
+    
+            System.out.print("Enter Forest ID: ");
+            int forestId = Integer.parseInt(br.readLine());
+            call.setInt(1, forestId);
+    
+            ResultSet resultSet = call.executeQuery();
+    
+            if (!resultSet.next()) {
+                System.out.println("No sensors found in the specified forest.");
+            } else {
+                System.out.println("Sensors in Forest " + forestId + ":");
+                do {
+                    int sensorId = resultSet.getInt("sensor_id");
+                    Timestamp lastCharged = resultSet.getTimestamp("last_charged");
+                    int energy = resultSet.getInt("energy");
+                    Timestamp lastRead = resultSet.getTimestamp("last_read");
+                    double x = resultSet.getDouble("X");
+                    double y = resultSet.getDouble("Y");
+                    String maintainerId = resultSet.getString("maintainer_id");
+    
+                    System.out.println("Sensor ID: " + sensorId +
+                            ", Last Charged: " + lastCharged +
+                            ", Energy: " + energy +
+                            ", Last Read: " + lastRead +
+                            ", X: " + x +
+                            ", Y: " + y +
+                            ", Maintainer ID: " + maintainerId);
+                } while (resultSet.next());
+            }
+        } catch (SQLException e) {
+            System.out.println("SQL Error");
+            while (e != null) {
+                System.out.println("Message = " + e.getMessage());
+                System.out.println("SQLState = " + e.getSQLState());
+                System.out.println("SQL Code = " + e.getErrorCode());
+                e = e.getNextException();
+            }
+        } catch (IOException | NumberFormatException e) {
+            System.out.println("Invalid input or I/O error, returning to the main menu.");
+            return;
+        }
         
     }
 
     private static void locateTreeSpecies() {
+         try {
+            CallableStatement call = connection.prepareCall("{ call locateTreeSpecies(?, ?) }");
+    
+            System.out.print("Enter Genus pattern: ");
+            String genusPattern = br.readLine();
+            System.out.print("Enter Epithet pattern: ");
+            String epithetPattern = br.readLine();
+    
+            call.setString(1, genusPattern);
+            call.setString(2, epithetPattern);
+    
+            ResultSet resultSet = call.executeQuery();
+    
+            if (!resultSet.next()) {
+                System.out.println("No forests found with the specified tree species patterns.");
+            } else {
+                System.out.println("Forests with Tree Species matching patterns:");
+                do {
+                    int forestNo = resultSet.getInt("forest_no");
+                    String name = resultSet.getString("name");
+                    int area = resultSet.getInt("area");
+                    double acidLevel = resultSet.getDouble("acid_level");
+                    double minX = resultSet.getDouble("MBR_XMin");
+                    double maxX = resultSet.getDouble("MBR_XMax");
+                    double minY = resultSet.getDouble("MBR_YMin");
+                    double maxY = resultSet.getDouble("MBR_YMax");
+    
+                    System.out.println("Forest No: " + forestNo +
+                            ", Name: " + name +
+                            ", Area: " + area +
+                            ", Acid Level: " + acidLevel +
+                            ", MBR XMin: " + minX +
+                            ", MBR XMax: " + maxX +
+                            ", MBR YMin: " + minY +
+                            ", MBR YMax: " + maxY);
+                } while (resultSet.next());
+            }
+        } catch (SQLException e) {
+            System.out.println("SQL Error");
+            while (e != null) {
+                System.out.println("Message = " + e.getMessage());
+                System.out.println("SQLState = " + e.getSQLState());
+                System.out.println("SQL Code = " + e.getErrorCode());
+                e = e.getNextException();
+            }
+        } catch (IOException e) {
+            System.out.println("I/O error, returning to main menu.");
+            return;
+        }
         
     }
 
     private static void rankForestSensors() {
+        try {
+        CallableStatement call = connection.prepareCall("{ call rankForestSensors() }");
+
+        ResultSet resultSet = call.executeQuery();
+
+        if (!resultSet.next()) {
+            System.out.println("No forests to rank.");
+        } else {
+            System.out.println("Ranked Forests based on the number of sensors:");
+
+            do {
+                int forestNo = resultSet.getInt("forest_no");
+                String name = resultSet.getString("name");
+                int area = resultSet.getInt("area");
+                double acidLevel = resultSet.getDouble("acid_level");
+                double minX = resultSet.getDouble("MBR_XMin");
+                double maxX = resultSet.getDouble("MBR_XMax");
+                double minY = resultSet.getDouble("MBR_YMin");
+                double maxY = resultSet.getDouble("MBR_YMax");
+
+                System.out.println("Forest No: " + forestNo +
+                        ", Name: " + name +
+                        ", Area: " + area +
+                        ", Acid Level: " + acidLevel +
+                        ", MBR XMin: " + minX +
+                        ", MBR XMax: " + maxX +
+                        ", MBR YMin: " + minY +
+                        ", MBR YMax: " + maxY);
+            } while (resultSet.next());
+        }
+      } catch (SQLException e) {
+        System.out.println("SQL Error");
+        while (e != null) {
+            System.out.println("Message = " + e.getMessage());
+            System.out.println("SQLState = " + e.getSQLState());
+            System.out.println("SQL Code = " + e.getErrorCode());
+            e = e.getNextException();
+        }
+     }
+
         
     }
 
     private static void habitableEnvironment() {
+        try {
+            CallableStatement call = connection.prepareCall("{ call habitableEnvironment(?,?,?) }");
+    
+            System.out.print("Enter genus: ");
+            String genus = br.readLine();
+            System.out.print("Enter epithet: ");
+            String epithet = br.readLine();
+            System.out.print("Enter k: ");
+            int k = Integer.parseInt(br.readLine());
+    
+            call.setString(1, genus);
+            call.setString(2, epithet);
+            call.setInt(3, k);
+    
+            ResultSet resultSet = call.executeQuery();
+    
+            if (!resultSet.next()) {
+                System.out.println("No habitable environments were found.");
+            } else {
+                System.out.println("Habitable Environments for the Tree Species:");
+    
+                do {
+                    int forestNo = resultSet.getInt("forest_no");
+                    String name = resultSet.getString("name");
+                    int area = resultSet.getInt("area");
+                    double acidLevel = resultSet.getDouble("acid_level");
+                    double minX = resultSet.getDouble("MBR_XMin");
+                    double maxX = resultSet.getDouble("MBR_XMax");
+                    double minY = resultSet.getDouble("MBR_YMin");
+                    double maxY = resultSet.getDouble("MBR_YMax");
+    
+                    System.out.println("Forest No: " + forestNo +
+                            ", Name: " + name +
+                            ", Area: " + area +
+                            ", Acid Level: " + acidLevel +
+                            ", MBR XMin: " + minX +
+                            ", MBR XMax: " + maxX +
+                            ", MBR YMin: " + minY +
+                            ", MBR YMax: " + maxY);
+                } while (resultSet.next());
+            }
+        } catch (SQLException e) {
+            System.out.println("SQL Error");
+            while (e != null) {
+                System.out.println("Message = " + e.getMessage());
+                System.out.println("SQLState = " + e.getSQLState());
+                System.out.println("SQL Code = " + e.getErrorCode());
+                e = e.getNextException();
+            }
+        } catch (IOException | NumberFormatException e) {
+            System.out.println("Input Error");
+        }
         
     }
 
     private static void topSensors() {
-        
+        try {
+            CallableStatement call = connection.prepareCall("{ call topSensors(?,?) }");
+    
+            System.out.print("Enter k: ");
+            int k = Integer.parseInt(br.readLine());
+            System.out.print("Enter x: ");
+            int x = Integer.parseInt(br.readLine());
+    
+            call.setInt(1, k);
+            call.setInt(2, x);
+    
+            ResultSet resultSet = call.executeQuery();
+    
+            if (!resultSet.next()) {
+                System.out.println("No sensors found.");
+            } else {
+                System.out.println("Top Sensors:");
+    
+                do {
+                    int sensorId = resultSet.getInt("sensor_id");
+                    Timestamp lastCharged = resultSet.getTimestamp("last_charged");
+                    int energy = resultSet.getInt("energy");
+                    Timestamp lastRead = resultSet.getTimestamp("last_read");
+                    double sensorX = resultSet.getDouble("X");
+                    double sensorY = resultSet.getDouble("Y");
+                    String maintainerId = resultSet.getString("maintainer_id");
+    
+                    System.out.println("Sensor ID: " + sensorId +
+                            ", Last Charged: " + lastCharged +
+                            ", Energy: " + energy +
+                            ", Last Read: " + lastRead +
+                            ", X: " + sensorX +
+                            ", Y: " + sensorY +
+                            ", Maintainer ID: " + maintainerId);
+                } while (resultSet.next());
+            }
+        } catch (SQLException e) {
+            System.out.println("SQL Error");
+            while (e != null) {
+                System.out.println("Message = " + e.getMessage());
+                System.out.println("SQLState = " + e.getSQLState());
+                System.out.println("SQL Code = " + e.getErrorCode());
+                e = e.getNextException();
+            }
+        } catch (IOException | NumberFormatException e) {
+            System.out.println("Input Error");
+        }
+            
     }
 
     private static void threeDegrees() {
-        
+
+         try {
+            CallableStatement call = connection.prepareCall("{ call threeDegrees(?,?,?) }");
+    
+            System.out.print("Enter first forest number (f1): ");
+            int f1 = Integer.parseInt(br.readLine());
+            System.out.print("Enter second forest number (f2): ");
+            int f2 = Integer.parseInt(br.readLine());
+    
+            call.setInt(1, f1);
+            call.setInt(2, f2);
+            call.registerOutParameter(3, Types.VARCHAR);
+    
+            call.execute();
+    
+            String path = call.getString(3);
+            if (path.equals("No path was found")) {
+                System.out.println("No path was found between the two forests in three hops.");
+            } else {
+                System.out.println("Path between forests: " + path);
+            }
+        } catch (SQLException e) {
+            System.out.println("SQL Error");
+            while (e != null) {
+                System.out.println("Message = " + e.getMessage());
+                System.out.println("SQLState = " + e.getSQLState());
+                System.out.println("SQL Code = " + e.getErrorCode());
+                e = e.getNextException();
+            }
+        } catch (IOException | NumberFormatException e) {
+            System.out.println("Input Error");
+        }
+            
     }
 
     public static void main(String[] args) {
