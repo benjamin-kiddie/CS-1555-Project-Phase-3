@@ -138,7 +138,9 @@ CREATE TABLE TREE_COMMON_NAME (
     epithet varchar(30),
     common_name varchar(30),
 
-    CONSTRAINT tree_common_name_pk PRIMARY KEY (genus, epithet, common_name)
+    CONSTRAINT tree_common_name_pk PRIMARY KEY (genus, epithet, common_name),
+    CONSTRAINT tree_common_name_fk_species FOREIGN KEY (genus, epithet) REFERENCES TREE_SPECIES(genus, epithet)
+        ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 DROP DOMAIN IF EXISTS rank;

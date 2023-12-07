@@ -21,68 +21,43 @@ import java.io.IOException;
 public class ArborDB {
     private static Connection connection; // Connection to be maintained with the database
     private static BufferedReader br = new BufferedReader(new InputStreamReader(System.in)); // For I/O
-    
-    private static void connect() {
-        // if (connection == null) { // If a connection is yet to be established, attempt to connect
-        //     String user = "";
-        //     String pwd = "";
-        //     try {
-        //         System.out.print("Input your username: ");
-        //         user = br.readLine();
-        //         System.out.print("Input your password: ");
-        //         pwd = br.readLine();
-        //     } catch (IOException e) {
-        //         System.out.println("I/O error, returning to main menu.");
-        //         return;
-        //     }
-        //     try {
-        //         connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/", user, pwd);
-        //     } catch (SQLException e) { // Thrown when, for any reason, connection cannot be established
-        //         System.out.println("Connection error. Please make sure that the database is active and that your username and password are correct.");
-        //         return;
-        //     }
-        //     System.out.println("Connection established successfully.");
-        // } else { // If connection already exists (not null), no need to connect
-        //     System.out.println("Already connected to database.");
-        //     return;
-        // }
-            if (connection == null) {
-        String user = "";
-        String pwd = "";
-        try {
-            System.out.print("Input your username: ");
-            user = br.readLine();
-            System.out.print("Input your password: ");
-            pwd = br.readLine();
-        } catch (IOException e) {
-            System.out.println("I/O error, returning to main menu.");
-            return;
-        }
-        try {
-            // trying to debug
-            System.out.println("Connecting to the database with the following details:");
-            System.out.println("URL: jdbc:postgresql://localhost:5432/");
-            System.out.println("User: " + user);
-            System.out.println("Password: " + pwd);
 
-            connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/", user, pwd);
-        } catch (SQLException e) {
-            System.out.println("Connection error. Please make sure that the database is active and that your username and password are correct.");
-            e.printStackTrace();  
-            return;
+    private static boolean verifyConnection() {
+        if (connection == null) {
+            System.out.println("No connection. Please run connect command before modifying/querying the database.");
+            return false;
         }
-        System.out.println("Connection established successfully.");
-    } else {
-        System.out.println("Already connected to the database.");
+        return true;
     }
 
+    private static void connect() {
+        if (connection == null) { // If a connection is yet to be established, attempt to connect
+            String user = "";
+            String pwd = "";
+            try {
+                System.out.print("Input your username: ");
+                user = br.readLine();
+                System.out.print("Input your password: ");
+                pwd = br.readLine();
+            } catch (IOException e) {
+                System.out.println("I/O error, returning to main menu.");
+                return;
+            }
+            try {
+                connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres?currentSchema=arbor_db", user, pwd);
+            } catch (SQLException e) { // Thrown when, for any reason, connection cannot be established
+                System.out.println("Connection error. Please make sure that the database is active and that your username and password are correct.");
+                return;
+            }
+            System.out.println("Connection established successfully.");
+        } else { // If connection already exists (not null), no need to connect
+            System.out.println("Already connected to database.");
+        }
     }
 
     private static void addForest() {
         try {
-            if (connection == null) {
-            connect();
-            }
+            if (!verifyConnection()) return;
             CallableStatement call = connection.prepareCall("{ call addForest( ?,?,?,?,?,?,? ) }");
             System.out.print("Enter name: ");
             call.setString(1, br.readLine());
@@ -118,9 +93,7 @@ public class ArborDB {
 
     private static void addTreeSpecies() {
         try {
-             if (connection == null) {
-            connect();
-            }
+            if (!verifyConnection()) return;
             CallableStatement call = connection.prepareCall("{ call addTreeSpecies( ?,?,?,?,? ) }");
             System.out.print("Enter genus: ");
             call.setString(1, br.readLine());
@@ -152,9 +125,7 @@ public class ArborDB {
 
     private static void addSpeciesToForest() {
     try {
-         if (connection == null) {
-            connect();
-            }
+        if (!verifyConnection()) return;
         CallableStatement call = connection.prepareCall("{ call addSpeciesToForest(?,?,?) }");
         System.out.print("Enter forest_no: ");
         call.setInt(1, Integer.parseInt(br.readLine()));
@@ -185,9 +156,7 @@ public class ArborDB {
     private static void newWorker() {
 
      try {
-          if (connection == null) {
-            connect();
-            }
+         if (!verifyConnection()) return;
         CallableStatement call = connection.prepareCall("{ call newWorker(?,?,?,?,?,?) }");
         System.out.print("Enter SSN: ");
         call.setString(1, br.readLine());
@@ -225,9 +194,7 @@ public class ArborDB {
 
     private static void employWorkerToState() {
           try {
-               if (connection == null) {
-            connect();
-            }
+              if (!verifyConnection()) return;
             CallableStatement call = connection.prepareCall("{ call employWorkerToState(?,?) }");
             System.out.print("Enter State abbreviation: ");
             call.setString(1, br.readLine());
@@ -255,9 +222,7 @@ public class ArborDB {
 
     private static void placeSensor() {
          try {
-              if (connection == null) {
-            connect();
-            }
+             if (!verifyConnection()) return;
             CallableStatement call = connection.prepareCall("{ call newWorker(?,?,?,?,?,?) }");
             System.out.print("Enter SSN: ");
             call.setString(1, br.readLine());
@@ -293,9 +258,7 @@ public class ArborDB {
 
     private static void generateReport() {
         try {
-             if (connection == null) {
-            connect();
-            }
+            if (!verifyConnection()) return;
             CallableStatement call = connection.prepareCall("{ call placeSensor(?,?,?,?) }");
             System.out.print("Enter Energy: ");
             call.setInt(1, Integer.parseInt(br.readLine()));
@@ -327,9 +290,7 @@ public class ArborDB {
 
     private static void removeSpeciesFromForest() {
         try {
-             if (connection == null) {
-            connect();
-            }
+            if (!verifyConnection()) return;
             CallableStatement call = connection.prepareCall("{ call placeSensor(?,?,?,?) }");
             System.out.print("Enter Energy: ");
             call.setInt(1, Integer.parseInt(br.readLine()));
@@ -361,9 +322,7 @@ public class ArborDB {
 
     private static void deleteWorker() {
         try {
-             if (connection == null) {
-            connect();
-            }
+            if (!verifyConnection()) return;
             CallableStatement call = connection.prepareCall("{ call deleteWorker(?) }");
             System.out.print("Enter Worker SSN: ");
             String ssn = br.readLine();
@@ -388,9 +347,7 @@ public class ArborDB {
 
     private static void moveSensor() {
          try {
-              if (connection == null) {
-            connect();
-            }
+             if (!verifyConnection()) return;
             CallableStatement call = connection.prepareCall("{ call moveSensor(?,?,?) }");
             System.out.print("Enter Sensor ID: ");
             int sensorId = Integer.parseInt(br.readLine());
@@ -427,9 +384,7 @@ public class ArborDB {
     private static void removeWorkerFromState() {
 
         try {
-             if (connection == null) {
-            connect();
-            }
+            if (!verifyConnection()) return;
             CallableStatement call = connection.prepareCall("{ call removeWorkerFromState(?,?) }");
             System.out.print("Enter Worker SSN: ");
             String ssn = br.readLine();
@@ -459,9 +414,7 @@ public class ArborDB {
     private static void removeSensor() {
 
         try {
-             if (connection == null) {
-            connect();
-            }
+            if (!verifyConnection()) return;
             CallableStatement call = connection.prepareCall("{ call removeSensor(?) }");
             
             System.out.print("Do you want to remove all sensors? (yes/no): ");
@@ -505,9 +458,7 @@ public class ArborDB {
 
     private static void listSensors() {
         try {
-             if (connection == null) {
-            connect();
-            }
+            if (!verifyConnection()) return;
             CallableStatement call = connection.prepareCall("{ call listSensors(?) }");
     
             System.out.print("Enter Forest ID: ");
@@ -555,9 +506,7 @@ public class ArborDB {
 
     private static void listMaintainedSensors() {
          try {
-              if (connection == null) {
-            connect();
-            }
+             if (!verifyConnection()) return;
             CallableStatement call = connection.prepareCall("{ call listSensors(?) }");
     
             System.out.print("Enter Forest ID: ");
@@ -605,9 +554,7 @@ public class ArborDB {
 
     private static void locateTreeSpecies() {
          try {
-              if (connection == null) {
-            connect();
-            }
+             if (!verifyConnection()) return;
             CallableStatement call = connection.prepareCall("{ call locateTreeSpecies(?, ?) }");
     
             System.out.print("Enter Genus pattern: ");
@@ -661,9 +608,7 @@ public class ArborDB {
 
     private static void rankForestSensors() {
         try {
-             if (connection == null) {
-            connect();
-            }
+            if (!verifyConnection()) return;
         CallableStatement call = connection.prepareCall("{ call rankForestSensors() }");
 
         ResultSet resultSet = call.executeQuery();
@@ -708,9 +653,7 @@ public class ArborDB {
 
     private static void habitableEnvironment() {
         try {
-             if (connection == null) {
-            connect();
-            }
+            if (!verifyConnection()) return;
             CallableStatement call = connection.prepareCall("{ call habitableEnvironment(?,?,?) }");
     
             System.out.print("Enter genus: ");
@@ -767,9 +710,7 @@ public class ArborDB {
 
     private static void topSensors() {
         try {
-             if (connection == null) {
-            connect();
-            }
+            if (!verifyConnection()) return;
             CallableStatement call = connection.prepareCall("{ call topSensors(?,?) }");
     
             System.out.print("Enter k: ");
@@ -822,9 +763,7 @@ public class ArborDB {
     private static void threeDegrees() {
 
          try {
-              if (connection == null) {
-            connect();
-            }
+             if (!verifyConnection()) return;
             CallableStatement call = connection.prepareCall("{ call threeDegrees(?,?,?) }");
     
             System.out.print("Enter first forest number (f1): ");
