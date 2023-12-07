@@ -13,6 +13,7 @@
  * Before attempting to connect, make sure that a DB session is active and all .sql file are executed via DataGrip
  */
 
+import javax.xml.transform.Result;
 import java.sql.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -28,6 +29,49 @@ public class ArborDB {
             return false;
         }
         return true;
+    }
+
+    private static void displaySensorTable(ResultSet resultSet) throws SQLException {
+        // formatted table-style display
+        System.out.printf("--------------------------------------------------------------------------------------------------------------%n");
+        System.out.printf("| %-9s | %-21s | %-6s | %-21s | %-9s | %-9s | %-13s |%n", "Sensor ID", "Last Charged", "Energy", "Last Read", "X", "Y", "Maintainer ID");
+        System.out.printf("--------------------------------------------------------------------------------------------------------------%n");
+        do {
+            // take all columns and place in row
+            int sensorId = resultSet.getInt("sensor_id");
+            Timestamp lastCharged = resultSet.getTimestamp("last_charged");
+            int energy = resultSet.getInt("energy");
+            Timestamp lastRead = resultSet.getTimestamp("last_read");
+            double sensorX = resultSet.getDouble("X");
+            double sensorY = resultSet.getDouble("Y");
+            String maintainerId = resultSet.getString("maintainer_id");
+            System.out.printf("| %-9s | %-21s | %-6s | %-21s | %-9s | %-9s | %-13s |%n",
+                    sensorId, lastCharged, energy, lastRead, sensorX, sensorY, maintainerId);
+        } while (resultSet.next());
+        // end table
+        System.out.printf("--------------------------------------------------------------------------------------------------------------%n");
+    }
+
+    private static void displayForestTable(ResultSet resultSet) throws SQLException {
+        // formatted table-style display
+        System.out.printf("------------------------------------------------------------------------------------------------------------------------%n");
+        System.out.printf("| %-9s | %-30s | %-10s | %-10s | %-9s | %-9s | %-9s | %-9s |%n", "Forest No", "Name", "Area", "Acid Level", "XMin", "XMax", "YMin", "YMax");
+        System.out.printf("------------------------------------------------------------------------------------------------------------------------%n");
+        do {
+            // take all columns and place in row
+            int forestNo = resultSet.getInt("forest_no");
+            String name = resultSet.getString("name");
+            int area = resultSet.getInt("area");
+            double acidLevel = resultSet.getDouble("acid_level");
+            double minX = resultSet.getDouble("MBR_XMin");
+            double maxX = resultSet.getDouble("MBR_XMax");
+            double minY = resultSet.getDouble("MBR_YMin");
+            double maxY = resultSet.getDouble("MBR_YMax");
+            System.out.printf("| %-9s | %-30s | %-10s | %-10s | %-9s | %-9s | %-9s | %-9s |%n",
+                    forestNo, name, area, acidLevel, minX, maxX, minY, maxY);
+        } while (resultSet.next());
+        // end table
+        System.out.printf("------------------------------------------------------------------------------------------------------------------------%n");
     }
 
     private static void connect() {
@@ -458,36 +502,21 @@ public class ArborDB {
 
     private static void listSensors() {
         try {
+            // verify connection, return if not established
             if (!verifyConnection()) return;
-            CallableStatement call = connection.prepareCall("{ call listSensors(?) }");
-    
-            System.out.print("Enter Forest ID: ");
-            int forestId = Integer.parseInt(br.readLine());
-            call.setInt(1, forestId);
-    
-            ResultSet resultSet = call.executeQuery();
-    
+            // prepare SQL call
+            PreparedStatement stmt = connection.prepareStatement("SELECT * FROM listSensors(?)");
+            System.out.print("Enter Forest No: ");
+            stmt.setInt(1, Integer.parseInt(br.readLine()));
+            // put results in resultSet
+            ResultSet resultSet = stmt.executeQuery();
+            // if no results, inform user
             if (!resultSet.next()) {
                 System.out.println("No sensors found in the specified forest.");
+            // otherwise, display results
             } else {
-                System.out.println("Sensors in Forest " + forestId + ":");
-                do {
-                    int sensorId = resultSet.getInt("sensor_id");
-                    Timestamp lastCharged = resultSet.getTimestamp("last_charged");
-                    int energy = resultSet.getInt("energy");
-                    Timestamp lastRead = resultSet.getTimestamp("last_read");
-                    double x = resultSet.getDouble("X");
-                    double y = resultSet.getDouble("Y");
-                    String maintainerId = resultSet.getString("maintainer_id");
-    
-                    System.out.println("Sensor ID: " + sensorId +
-                            ", Last Charged: " + lastCharged +
-                            ", Energy: " + energy +
-                            ", Last Read: " + lastRead +
-                            ", X: " + x +
-                            ", Y: " + y +
-                            ", Maintainer ID: " + maintainerId);
-                } while (resultSet.next());
+                System.out.println("Sensors in specified forest:");
+                displaySensorTable(resultSet);
             }
         } catch (SQLException e) {
             System.out.println("SQL Error");
@@ -506,50 +535,35 @@ public class ArborDB {
 
     private static void listMaintainedSensors() {
          try {
+             // verify connection, return if not established
              if (!verifyConnection()) return;
-            CallableStatement call = connection.prepareCall("{ call listSensors(?) }");
-    
-            System.out.print("Enter Forest ID: ");
-            int forestId = Integer.parseInt(br.readLine());
-            call.setInt(1, forestId);
-    
-            ResultSet resultSet = call.executeQuery();
-    
-            if (!resultSet.next()) {
-                System.out.println("No sensors found in the specified forest.");
-            } else {
-                System.out.println("Sensors in Forest " + forestId + ":");
-                do {
-                    int sensorId = resultSet.getInt("sensor_id");
-                    Timestamp lastCharged = resultSet.getTimestamp("last_charged");
-                    int energy = resultSet.getInt("energy");
-                    Timestamp lastRead = resultSet.getTimestamp("last_read");
-                    double x = resultSet.getDouble("X");
-                    double y = resultSet.getDouble("Y");
-                    String maintainerId = resultSet.getString("maintainer_id");
-    
-                    System.out.println("Sensor ID: " + sensorId +
-                            ", Last Charged: " + lastCharged +
-                            ", Energy: " + energy +
-                            ", Last Read: " + lastRead +
-                            ", X: " + x +
-                            ", Y: " + y +
-                            ", Maintainer ID: " + maintainerId);
-                } while (resultSet.next());
-            }
-        } catch (SQLException e) {
-            System.out.println("SQL Error");
-            while (e != null) {
-                System.out.println("Message = " + e.getMessage());
-                System.out.println("SQLState = " + e.getSQLState());
-                System.out.println("SQL Code = " + e.getErrorCode());
-                e = e.getNextException();
-            }
-        } catch (IOException | NumberFormatException e) {
-            System.out.println("Invalid input or I/O error, returning to the main menu.");
-            return;
-        }
-        
+             // prepare SQL call
+             PreparedStatement stmt = connection.prepareStatement("SELECT * FROM listMaintainedSensors(?)");
+             System.out.print("Enter Worker SSN: ");
+             stmt.setString(1, br.readLine());
+             // put results in resultSet
+             ResultSet resultSet = stmt.executeQuery();
+             // if no results, inform user
+             if (!resultSet.next()) {
+                 System.out.println("No sensors maintained by given worker.");
+             // otherwise, display results
+             } else {
+                 System.out.println("Below are the sensors maintained by the given worker:");
+                 displaySensorTable(resultSet);
+             }
+         // handle SQL exceptions
+         } catch (SQLException e) {
+             System.out.println("SQL Error");
+             while (e != null) {
+                 System.out.println("Message = " + e.getMessage());
+                 System.out.println("SQLState = " + e.getSQLState());
+                 System.out.println("SQL Code = " + e.getErrorCode());
+                 e = e.getNextException();
+             }
+         // handle I/O exceptions
+         } catch (IOException | NumberFormatException e) {
+             System.out.println("Invalid input or I/O error, returning to the main menu.");
+         }
     }
 
     private static void locateTreeSpecies() {
@@ -570,25 +584,7 @@ public class ArborDB {
              // otherwise, display results
              } else {
                  System.out.println("Forests with tree species matching the given pattern:");
-                 // formatted table-style display
-                 System.out.printf("------------------------------------------------------------------------------------------------------------------------%n");
-                 System.out.printf("| %-9s | %-30s | %-10s | %-10s | %-9s | %-9s | %-9s | %-9s |%n", "Forest No", "Name", "Area", "Acid Level", "XMin", "XMax", "YMin", "YMax");
-                 System.out.printf("------------------------------------------------------------------------------------------------------------------------%n");
-                 do {
-                     // take all columns and place in row
-                     int forestNo = resultSet.getInt("forest_no");
-                     String name = resultSet.getString("name");
-                     int area = resultSet.getInt("area");
-                     double acidLevel = resultSet.getDouble("acid_level");
-                     double minX = resultSet.getDouble("MBR_XMin");
-                     double maxX = resultSet.getDouble("MBR_XMax");
-                     double minY = resultSet.getDouble("MBR_YMin");
-                     double maxY = resultSet.getDouble("MBR_YMax");
-                     System.out.printf("| %-9s | %-30s | %-10s | %-10s | %-9s | %-9s | %-9s | %-9s |%n",
-                             forestNo, name, area, acidLevel, minX, maxX, minY, maxY);
-                 } while (resultSet.next());
-                 // end table
-                 System.out.printf("------------------------------------------------------------------------------------------------------------------------%n");
+                 displayForestTable(resultSet);
              }
         } catch (SQLException e) {
             System.out.println("SQL Error");
@@ -650,9 +646,9 @@ public class ArborDB {
             if (!verifyConnection()) return;
             // prepare SQL call
             PreparedStatement stmt = connection.prepareStatement("SELECT * FROM habitableEnvironment(?,?,?)");
-            System.out.print("Enter genus: ");
+            System.out.print("Enter Genus: ");
             stmt.setString(1, br.readLine());
-            System.out.print("Enter epithet: ");
+            System.out.print("Enter Epithet: ");
             stmt.setString(2, br.readLine());
             System.out.print("Enter k (years from present to consider): ");
             stmt.setInt(3, Integer.parseInt(br.readLine()));
@@ -663,26 +659,8 @@ public class ArborDB {
                 System.out.println("No habitable environments were found for the given species.");
             // otherwise, display results
             } else {
-                System.out.println("Habitable Environments for the given species:");
-                // formatted table-style display
-                System.out.printf("------------------------------------------------------------------------------------------------------------------------%n");
-                System.out.printf("| %-9s | %-30s | %-10s | %-10s | %-9s | %-9s | %-9s | %-9s |%n", "Forest No", "Name", "Area", "Acid Level", "XMin", "XMax", "YMin", "YMax");
-                System.out.printf("------------------------------------------------------------------------------------------------------------------------%n");
-                do {
-                    // take all columns and place in row
-                    int forestNo = resultSet.getInt("forest_no");
-                    String name = resultSet.getString("name");
-                    int area = resultSet.getInt("area");
-                    double acidLevel = resultSet.getDouble("acid_level");
-                    double minX = resultSet.getDouble("MBR_XMin");
-                    double maxX = resultSet.getDouble("MBR_XMax");
-                    double minY = resultSet.getDouble("MBR_YMin");
-                    double maxY = resultSet.getDouble("MBR_YMax");
-                    System.out.printf("| %-9s | %-30s | %-10s | %-10s | %-9s | %-9s | %-9s | %-9s |%n",
-                            forestNo, name, area, acidLevel, minX, maxX, minY, maxY);
-                } while (resultSet.next());
-                // end table
-                System.out.printf("------------------------------------------------------------------------------------------------------------------------%n");
+                System.out.println("Habitable forests for the given species:");
+                displayForestTable(resultSet);
             }
         // handle SQL exceptions
         } catch (SQLException e) {
@@ -717,24 +695,7 @@ public class ArborDB {
             // otherwise, display results
             } else {
                 System.out.println("Below are the top sensors:");
-                // formatted table-style display
-                System.out.printf("--------------------------------------------------------------------------------------------------------------%n");
-                System.out.printf("| %-9s | %-21s | %-6s | %-21s | %-9s | %-9s | %-13s |%n", "Sensor ID", "Last Charged", "Energy", "Last Read", "X", "Y", "Maintainer ID");
-                System.out.printf("--------------------------------------------------------------------------------------------------------------%n");
-                do {
-                    // take all columns and place in row
-                    int sensorId = resultSet.getInt("sensor_id");
-                    Timestamp lastCharged = resultSet.getTimestamp("last_charged");
-                    int energy = resultSet.getInt("energy");
-                    Timestamp lastRead = resultSet.getTimestamp("last_read");
-                    double sensorX = resultSet.getDouble("X");
-                    double sensorY = resultSet.getDouble("Y");
-                    String maintainerId = resultSet.getString("maintainer_id");
-                    System.out.printf("| %-9s | %-21s | %-6s | %-21s | %-9s | %-9s | %-13s |%n",
-                            sensorId, lastCharged, energy, lastRead, sensorX, sensorY, maintainerId);
-                } while (resultSet.next());
-                // end table
-                System.out.printf("--------------------------------------------------------------------------------------------------------------%n");
+                displaySensorTable(resultSet);
             }
         // handle SQL exceptions
         } catch (SQLException e) {
@@ -757,9 +718,9 @@ public class ArborDB {
             if (!verifyConnection()) return;
             // prepare SQL call
             PreparedStatement stmt = connection.prepareStatement("SELECT * FROM threeDegrees(?,?)");
-            System.out.print("Enter first forest number (f1): ");
+            System.out.print("Enter first Forest No (f1): ");
             stmt.setInt(1, Integer.parseInt(br.readLine()));
-            System.out.print("Enter second forest number (f2): ");
+            System.out.print("Enter second Forest No (f2): ");
             stmt.setInt(2, Integer.parseInt(br.readLine()));
             // put results in resultSet
             ResultSet rslt = stmt.executeQuery();
