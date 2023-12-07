@@ -68,7 +68,7 @@ public class ArborDB {
             connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/", user, pwd);
         } catch (SQLException e) {
             System.out.println("Connection error. Please make sure that the database is active and that your username and password are correct.");
-            e.printStackTrace();  \
+            e.printStackTrace();  
             return;
         }
         System.out.println("Connection established successfully.");
