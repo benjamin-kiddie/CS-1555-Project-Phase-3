@@ -554,43 +554,42 @@ public class ArborDB {
 
     private static void locateTreeSpecies() {
          try {
+             // verify connection, return if not established
              if (!verifyConnection()) return;
-            CallableStatement call = connection.prepareCall("{ call locateTreeSpecies(?, ?) }");
-    
-            System.out.print("Enter Genus pattern: ");
-            String genusPattern = br.readLine();
-            System.out.print("Enter Epithet pattern: ");
-            String epithetPattern = br.readLine();
-    
-            call.setString(1, genusPattern);
-            call.setString(2, epithetPattern);
-    
-            ResultSet resultSet = call.executeQuery();
-    
-            if (!resultSet.next()) {
-                System.out.println("No forests found with the specified tree species patterns.");
-            } else {
-                System.out.println("Forests with Tree Species matching patterns:");
-                do {
-                    int forestNo = resultSet.getInt("forest_no");
-                    String name = resultSet.getString("name");
-                    int area = resultSet.getInt("area");
-                    double acidLevel = resultSet.getDouble("acid_level");
-                    double minX = resultSet.getDouble("MBR_XMin");
-                    double maxX = resultSet.getDouble("MBR_XMax");
-                    double minY = resultSet.getDouble("MBR_YMin");
-                    double maxY = resultSet.getDouble("MBR_YMax");
-    
-                    System.out.println("Forest No: " + forestNo +
-                            ", Name: " + name +
-                            ", Area: " + area +
-                            ", Acid Level: " + acidLevel +
-                            ", MBR XMin: " + minX +
-                            ", MBR XMax: " + maxX +
-                            ", MBR YMin: " + minY +
-                            ", MBR YMax: " + maxY);
-                } while (resultSet.next());
-            }
+             // prepare SQL call
+             PreparedStatement stmt = connection.prepareStatement("SELECT * FROM locateTreeSpecies(?, ?)");
+             System.out.print("Enter Genus pattern: ");
+             stmt.setString(1, br.readLine());
+             System.out.print("Enter Epithet pattern: ");
+             stmt.setString(2, br.readLine());
+             // put results in resultSet
+             ResultSet resultSet = stmt.executeQuery();
+             // if no results, inform user
+             if (!resultSet.next()) {
+                 System.out.println("No forests found with the specified tree species pettern.");
+             // otherwise, display results
+             } else {
+                 System.out.println("Forests with tree species matching the given pattern:");
+                 // formatted table-style display
+                 System.out.printf("------------------------------------------------------------------------------------------------------------------------%n");
+                 System.out.printf("| %-9s | %-30s | %-10s | %-10s | %-9s | %-9s | %-9s | %-9s |%n", "Forest No", "Name", "Area", "Acid Level", "XMin", "XMax", "YMin", "YMax");
+                 System.out.printf("------------------------------------------------------------------------------------------------------------------------%n");
+                 do {
+                     // take all columns and place in row
+                     int forestNo = resultSet.getInt("forest_no");
+                     String name = resultSet.getString("name");
+                     int area = resultSet.getInt("area");
+                     double acidLevel = resultSet.getDouble("acid_level");
+                     double minX = resultSet.getDouble("MBR_XMin");
+                     double maxX = resultSet.getDouble("MBR_XMax");
+                     double minY = resultSet.getDouble("MBR_YMin");
+                     double maxY = resultSet.getDouble("MBR_YMax");
+                     System.out.printf("| %-9s | %-30s | %-10s | %-10s | %-9s | %-9s | %-9s | %-9s |%n",
+                             forestNo, name, area, acidLevel, minX, maxX, minY, maxY);
+                 } while (resultSet.next());
+                 // end table
+                 System.out.printf("------------------------------------------------------------------------------------------------------------------------%n");
+             }
         } catch (SQLException e) {
             System.out.println("SQL Error");
             while (e != null) {
@@ -603,78 +602,74 @@ public class ArborDB {
             System.out.println("I/O error, returning to main menu.");
             return;
         }
-        
+
     }
 
     private static void rankForestSensors() {
         try {
+            // verify connection, return if not established
             if (!verifyConnection()) return;
-        CallableStatement call = connection.prepareCall("{ call rankForestSensors() }");
-
-        ResultSet resultSet = call.executeQuery();
-
-        if (!resultSet.next()) {
-            System.out.println("No forests to rank.");
-        } else {
-            System.out.println("Ranked Forests based on the number of sensors:");
-
-            do {
-                int forestNo = resultSet.getInt("forest_no");
-                String name = resultSet.getString("name");
-                int area = resultSet.getInt("area");
-                double acidLevel = resultSet.getDouble("acid_level");
-                double minX = resultSet.getDouble("MBR_XMin");
-                double maxX = resultSet.getDouble("MBR_XMax");
-                double minY = resultSet.getDouble("MBR_YMin");
-                double maxY = resultSet.getDouble("MBR_YMax");
-
-                System.out.println("Forest No: " + forestNo +
-                        ", Name: " + name +
-                        ", Area: " + area +
-                        ", Acid Level: " + acidLevel +
-                        ", MBR XMin: " + minX +
-                        ", MBR XMax: " + maxX +
-                        ", MBR YMin: " + minY +
-                        ", MBR YMax: " + maxY);
-            } while (resultSet.next());
+            // prepare SQL call
+            PreparedStatement stmt = connection.prepareStatement("SELECT * FROM rankForestSensors()");
+            // put results in resultSet
+            ResultSet resultSet = stmt.executeQuery();
+            // if no results, inform user
+            if (!resultSet.next()) {
+                System.out.println("No forests to rank.");
+            // otherwise, display results
+            } else {
+                System.out.println("Below are the forests ranked on number of sensors:");
+                // formatted table-style display
+                System.out.printf("--------------------%n");
+                System.out.printf("| %-4s | %-9s |%n", "Rank", "Forest No");
+                System.out.printf("--------------------%n");
+                do {
+                    // take all columns and place in row
+                    int rank = resultSet.getInt("rank");
+                    int forestNo = resultSet.getInt("forest_no");
+                    System.out.printf("| %-4s | %-9s |%n", rank, forestNo);
+                } while (resultSet.next());
+                // end table
+                System.out.printf("--------------------%n");
+            }
+        // handle SQL exceptions
+        } catch (SQLException e) {
+            System.out.println("SQL Error");
+            while (e != null) {
+                System.out.println("Message = " + e.getMessage());
+                System.out.println("SQLState = " + e.getSQLState());
+                System.out.println("SQL Code = " + e.getErrorCode());
+                e = e.getNextException();
+            }
         }
-      } catch (SQLException e) {
-        System.out.println("SQL Error");
-        while (e != null) {
-            System.out.println("Message = " + e.getMessage());
-            System.out.println("SQLState = " + e.getSQLState());
-            System.out.println("SQL Code = " + e.getErrorCode());
-            e = e.getNextException();
-        }
-     }
-
-        
     }
 
     private static void habitableEnvironment() {
         try {
+            // verify connection, return if not established
             if (!verifyConnection()) return;
-            CallableStatement call = connection.prepareCall("{ call habitableEnvironment(?,?,?) }");
-    
+            // prepare SQL call
+            PreparedStatement stmt = connection.prepareStatement("SELECT * FROM habitableEnvironment(?,?,?)");
             System.out.print("Enter genus: ");
-            String genus = br.readLine();
+            stmt.setString(1, br.readLine());
             System.out.print("Enter epithet: ");
-            String epithet = br.readLine();
-            System.out.print("Enter k: ");
-            int k = Integer.parseInt(br.readLine());
-    
-            call.setString(1, genus);
-            call.setString(2, epithet);
-            call.setInt(3, k);
-    
-            ResultSet resultSet = call.executeQuery();
-    
+            stmt.setString(2, br.readLine());
+            System.out.print("Enter k (years from present to consider): ");
+            stmt.setInt(3, Integer.parseInt(br.readLine()));
+            // put results in resultSet
+            ResultSet resultSet = stmt.executeQuery();
+            // if no results, inform user
             if (!resultSet.next()) {
-                System.out.println("No habitable environments were found.");
+                System.out.println("No habitable environments were found for the given species.");
+            // otherwise, display results
             } else {
-                System.out.println("Habitable Environments for the Tree Species:");
-    
+                System.out.println("Habitable Environments for the given species:");
+                // formatted table-style display
+                System.out.printf("------------------------------------------------------------------------------------------------------------------------%n");
+                System.out.printf("| %-9s | %-30s | %-10s | %-10s | %-9s | %-9s | %-9s | %-9s |%n", "Forest No", "Name", "Area", "Acid Level", "XMin", "XMax", "YMin", "YMax");
+                System.out.printf("------------------------------------------------------------------------------------------------------------------------%n");
                 do {
+                    // take all columns and place in row
                     int forestNo = resultSet.getInt("forest_no");
                     String name = resultSet.getString("name");
                     int area = resultSet.getInt("area");
@@ -683,17 +678,13 @@ public class ArborDB {
                     double maxX = resultSet.getDouble("MBR_XMax");
                     double minY = resultSet.getDouble("MBR_YMin");
                     double maxY = resultSet.getDouble("MBR_YMax");
-    
-                    System.out.println("Forest No: " + forestNo +
-                            ", Name: " + name +
-                            ", Area: " + area +
-                            ", Acid Level: " + acidLevel +
-                            ", MBR XMin: " + minX +
-                            ", MBR XMax: " + maxX +
-                            ", MBR YMin: " + minY +
-                            ", MBR YMax: " + maxY);
+                    System.out.printf("| %-9s | %-30s | %-10s | %-10s | %-9s | %-9s | %-9s | %-9s |%n",
+                            forestNo, name, area, acidLevel, minX, maxX, minY, maxY);
                 } while (resultSet.next());
+                // end table
+                System.out.printf("------------------------------------------------------------------------------------------------------------------------%n");
             }
+        // handle SQL exceptions
         } catch (SQLException e) {
             System.out.println("SQL Error");
             while (e != null) {
@@ -702,33 +693,36 @@ public class ArborDB {
                 System.out.println("SQL Code = " + e.getErrorCode());
                 e = e.getNextException();
             }
+        // handle I/O exceptions
         } catch (IOException | NumberFormatException e) {
             System.out.println("Input Error");
         }
-        
     }
 
     private static void topSensors() {
         try {
+            // verify connection, return if not established
             if (!verifyConnection()) return;
-            CallableStatement call = connection.prepareCall("{ call topSensors(?,?) }");
-    
-            System.out.print("Enter k: ");
-            int k = Integer.parseInt(br.readLine());
-            System.out.print("Enter x: ");
-            int x = Integer.parseInt(br.readLine());
-    
-            call.setInt(1, k);
-            call.setInt(2, x);
-    
-            ResultSet resultSet = call.executeQuery();
-    
+            // prepare SQL call
+            PreparedStatement stmt = connection.prepareStatement("SELECT * FROM topSensors(?,?)");
+            System.out.print("Enter k (number of sensors): ");
+            stmt.setInt(1, Integer.parseInt(br.readLine()));
+            System.out.print("Enter x (months back from present to consider): ");
+            stmt.setInt(2, Integer.parseInt(br.readLine()));
+            // put results in resultSet
+            ResultSet resultSet = stmt.executeQuery();
+            // if no results, inform user
             if (!resultSet.next()) {
                 System.out.println("No sensors found.");
+            // otherwise, display results
             } else {
-                System.out.println("Top Sensors:");
-    
+                System.out.println("Below are the top sensors:");
+                // formatted table-style display
+                System.out.printf("--------------------------------------------------------------------------------------------------------------%n");
+                System.out.printf("| %-9s | %-21s | %-6s | %-21s | %-9s | %-9s | %-13s |%n", "Sensor ID", "Last Charged", "Energy", "Last Read", "X", "Y", "Maintainer ID");
+                System.out.printf("--------------------------------------------------------------------------------------------------------------%n");
                 do {
+                    // take all columns and place in row
                     int sensorId = resultSet.getInt("sensor_id");
                     Timestamp lastCharged = resultSet.getTimestamp("last_charged");
                     int energy = resultSet.getInt("energy");
@@ -736,16 +730,13 @@ public class ArborDB {
                     double sensorX = resultSet.getDouble("X");
                     double sensorY = resultSet.getDouble("Y");
                     String maintainerId = resultSet.getString("maintainer_id");
-    
-                    System.out.println("Sensor ID: " + sensorId +
-                            ", Last Charged: " + lastCharged +
-                            ", Energy: " + energy +
-                            ", Last Read: " + lastRead +
-                            ", X: " + sensorX +
-                            ", Y: " + sensorY +
-                            ", Maintainer ID: " + maintainerId);
+                    System.out.printf("| %-9s | %-21s | %-6s | %-21s | %-9s | %-9s | %-13s |%n",
+                            sensorId, lastCharged, energy, lastRead, sensorX, sensorY, maintainerId);
                 } while (resultSet.next());
+                // end table
+                System.out.printf("--------------------------------------------------------------------------------------------------------------%n");
             }
+        // handle SQL exceptions
         } catch (SQLException e) {
             System.out.println("SQL Error");
             while (e != null) {
@@ -754,26 +745,32 @@ public class ArborDB {
                 System.out.println("SQL Code = " + e.getErrorCode());
                 e = e.getNextException();
             }
+        // handle I/O exceptions
         } catch (IOException | NumberFormatException e) {
             System.out.println("Input Error");
         }
-            
     }
 
     private static void threeDegrees() {
         try {
+            // verify connection, return if not established
             if (!verifyConnection()) return;
+            // prepare SQL call
             PreparedStatement stmt = connection.prepareStatement("SELECT * FROM threeDegrees(?,?)");
             System.out.print("Enter first forest number (f1): ");
             stmt.setInt(1, Integer.parseInt(br.readLine()));
             System.out.print("Enter second forest number (f2): ");
             stmt.setInt(2, Integer.parseInt(br.readLine()));
+            // put results in resultSet
             ResultSet rslt = stmt.executeQuery();
-        if (rslt.next()) {
-            System.out.println("Path between forests: " + rslt.getString(1));
-        } else {
-            System.out.println("No three-hop path exists between these forests.");
-        }
+            // if no results, inform user
+            if (rslt.next()) {
+                System.out.println("Path between forests: " + rslt.getString(1));
+            // otherwise, display results
+            } else {
+                System.out.println("No three-hop path exists between these forests.");
+            }
+        // handle SQL exceptions
         } catch (SQLException e) {
             System.out.println("SQL Error");
             while (e != null) {
@@ -782,6 +779,7 @@ public class ArborDB {
                 System.out.println("SQL Code = " + e.getErrorCode());
                 e = e.getNextException();
             }
+        // handle I/O exceptions
         } catch (IOException | NumberFormatException e) {
             System.out.println("Input Error");
         }
