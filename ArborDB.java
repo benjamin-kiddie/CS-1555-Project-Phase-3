@@ -761,28 +761,19 @@ public class ArborDB {
     }
 
     private static void threeDegrees() {
-
-         try {
-             if (!verifyConnection()) return;
-            CallableStatement call = connection.prepareCall("{ call threeDegrees(?,?,?) }");
-    
+        try {
+            if (!verifyConnection()) return;
+            PreparedStatement stmt = connection.prepareStatement("SELECT * FROM threeDegrees(?,?)");
             System.out.print("Enter first forest number (f1): ");
-            int f1 = Integer.parseInt(br.readLine());
+            stmt.setInt(1, Integer.parseInt(br.readLine()));
             System.out.print("Enter second forest number (f2): ");
-            int f2 = Integer.parseInt(br.readLine());
-    
-            call.setInt(1, f1);
-            call.setInt(2, f2);
-            call.registerOutParameter(3, Types.VARCHAR);
-    
-            call.execute();
-    
-            String path = call.getString(3);
-            if (path.equals("No path was found")) {
-                System.out.println("No path was found between the two forests in three hops.");
-            } else {
-                System.out.println("Path between forests: " + path);
-            }
+            stmt.setInt(2, Integer.parseInt(br.readLine()));
+            ResultSet rslt = stmt.executeQuery();
+        if (rslt.next()) {
+            System.out.println("Path between forests: " + rslt.getString(1));
+        } else {
+            System.out.println("No three-hop path exists between these forests.");
+        }
         } catch (SQLException e) {
             System.out.println("SQL Error");
             while (e != null) {
@@ -794,7 +785,6 @@ public class ArborDB {
         } catch (IOException | NumberFormatException e) {
             System.out.println("Input Error");
         }
-            
     }
 
     public static void main(String[] args) {
