@@ -23,29 +23,59 @@ public class ArborDB {
     private static BufferedReader br = new BufferedReader(new InputStreamReader(System.in)); // For I/O
     
     private static void connect() {
-        if (connection == null) { // If a connection is yet to be established, attempt to connect
-            String user = "";
-            String pwd = "";
-            try {
-                System.out.print("Input your username: ");
-                user = br.readLine();
-                System.out.print("Input your password: ");
-                pwd = br.readLine();
-            } catch (IOException e) {
-                System.out.println("I/O error, returning to main menu.");
-                return;
-            }
-            try {
-                connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/", user, pwd);
-            } catch (SQLException e) { // Thrown when, for any reason, connection cannot be established
-                System.out.println("Connection error. Please make sure that the database is active and that your username and password are correct.");
-                return;
-            }
-            System.out.println("Connection established successfully.");
-        } else { // If connection already exists (not null), no need to connect
-            System.out.println("Already connected to database.");
+        // if (connection == null) { // If a connection is yet to be established, attempt to connect
+        //     String user = "";
+        //     String pwd = "";
+        //     try {
+        //         System.out.print("Input your username: ");
+        //         user = br.readLine();
+        //         System.out.print("Input your password: ");
+        //         pwd = br.readLine();
+        //     } catch (IOException e) {
+        //         System.out.println("I/O error, returning to main menu.");
+        //         return;
+        //     }
+        //     try {
+        //         connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/", user, pwd);
+        //     } catch (SQLException e) { // Thrown when, for any reason, connection cannot be established
+        //         System.out.println("Connection error. Please make sure that the database is active and that your username and password are correct.");
+        //         return;
+        //     }
+        //     System.out.println("Connection established successfully.");
+        // } else { // If connection already exists (not null), no need to connect
+        //     System.out.println("Already connected to database.");
+        //     return;
+        // }
+            if (connection == null) {
+        String user = "";
+        String pwd = "";
+        try {
+            System.out.print("Input your username: ");
+            user = br.readLine();
+            System.out.print("Input your password: ");
+            pwd = br.readLine();
+        } catch (IOException e) {
+            System.out.println("I/O error, returning to main menu.");
             return;
         }
+        try {
+            // trying to debug
+            System.out.println("Connecting to the database with the following details:");
+            System.out.println("URL: jdbc:postgresql://localhost:5432/");
+            System.out.println("User: " + user);
+            System.out.println("Password: " + pwd);
+
+            connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/", user, pwd);
+        } catch (SQLException e) {
+            System.out.println("Connection error. Please make sure that the database is active and that your username and password are correct.");
+            e.printStackTrace();  \
+            return;
+        }
+        System.out.println("Connection established successfully.");
+    } else {
+        System.out.println("Already connected to the database.");
+    }
+
     }
 
     private static void addForest() {
