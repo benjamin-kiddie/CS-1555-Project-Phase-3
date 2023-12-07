@@ -50,6 +50,9 @@ public class ArborDB {
 
     private static void addForest() {
         try {
+            if (connection == null) {
+            connect();
+            }
             CallableStatement call = connection.prepareCall("{ call addForest( ?,?,?,?,?,?,? ) }");
             System.out.print("Enter name: ");
             call.setString(1, br.readLine());
@@ -85,6 +88,9 @@ public class ArborDB {
 
     private static void addTreeSpecies() {
         try {
+             if (connection == null) {
+            connect();
+            }
             CallableStatement call = connection.prepareCall("{ call addTreeSpecies( ?,?,?,?,? ) }");
             System.out.print("Enter genus: ");
             call.setString(1, br.readLine());
@@ -116,6 +122,9 @@ public class ArborDB {
 
     private static void addSpeciesToForest() {
     try {
+         if (connection == null) {
+            connect();
+            }
         CallableStatement call = connection.prepareCall("{ call addSpeciesToForest(?,?,?) }");
         System.out.print("Enter forest_no: ");
         call.setInt(1, Integer.parseInt(br.readLine()));
@@ -146,6 +155,9 @@ public class ArborDB {
     private static void newWorker() {
 
      try {
+          if (connection == null) {
+            connect();
+            }
         CallableStatement call = connection.prepareCall("{ call newWorker(?,?,?,?,?,?) }");
         System.out.print("Enter SSN: ");
         call.setString(1, br.readLine());
@@ -183,6 +195,9 @@ public class ArborDB {
 
     private static void employWorkerToState() {
           try {
+               if (connection == null) {
+            connect();
+            }
             CallableStatement call = connection.prepareCall("{ call employWorkerToState(?,?) }");
             System.out.print("Enter State abbreviation: ");
             call.setString(1, br.readLine());
@@ -210,6 +225,9 @@ public class ArborDB {
 
     private static void placeSensor() {
          try {
+              if (connection == null) {
+            connect();
+            }
             CallableStatement call = connection.prepareCall("{ call newWorker(?,?,?,?,?,?) }");
             System.out.print("Enter SSN: ");
             call.setString(1, br.readLine());
@@ -245,6 +263,9 @@ public class ArborDB {
 
     private static void generateReport() {
         try {
+             if (connection == null) {
+            connect();
+            }
             CallableStatement call = connection.prepareCall("{ call placeSensor(?,?,?,?) }");
             System.out.print("Enter Energy: ");
             call.setInt(1, Integer.parseInt(br.readLine()));
@@ -276,6 +297,9 @@ public class ArborDB {
 
     private static void removeSpeciesFromForest() {
         try {
+             if (connection == null) {
+            connect();
+            }
             CallableStatement call = connection.prepareCall("{ call placeSensor(?,?,?,?) }");
             System.out.print("Enter Energy: ");
             call.setInt(1, Integer.parseInt(br.readLine()));
@@ -307,6 +331,9 @@ public class ArborDB {
 
     private static void deleteWorker() {
         try {
+             if (connection == null) {
+            connect();
+            }
             CallableStatement call = connection.prepareCall("{ call deleteWorker(?) }");
             System.out.print("Enter Worker SSN: ");
             String ssn = br.readLine();
@@ -331,6 +358,9 @@ public class ArborDB {
 
     private static void moveSensor() {
          try {
+              if (connection == null) {
+            connect();
+            }
             CallableStatement call = connection.prepareCall("{ call moveSensor(?,?,?) }");
             System.out.print("Enter Sensor ID: ");
             int sensorId = Integer.parseInt(br.readLine());
@@ -367,6 +397,9 @@ public class ArborDB {
     private static void removeWorkerFromState() {
 
         try {
+             if (connection == null) {
+            connect();
+            }
             CallableStatement call = connection.prepareCall("{ call removeWorkerFromState(?,?) }");
             System.out.print("Enter Worker SSN: ");
             String ssn = br.readLine();
@@ -396,6 +429,9 @@ public class ArborDB {
     private static void removeSensor() {
 
         try {
+             if (connection == null) {
+            connect();
+            }
             CallableStatement call = connection.prepareCall("{ call removeSensor(?) }");
             
             System.out.print("Do you want to remove all sensors? (yes/no): ");
@@ -439,6 +475,9 @@ public class ArborDB {
 
     private static void listSensors() {
         try {
+             if (connection == null) {
+            connect();
+            }
             CallableStatement call = connection.prepareCall("{ call listSensors(?) }");
     
             System.out.print("Enter Forest ID: ");
@@ -486,6 +525,9 @@ public class ArborDB {
 
     private static void listMaintainedSensors() {
          try {
+              if (connection == null) {
+            connect();
+            }
             CallableStatement call = connection.prepareCall("{ call listSensors(?) }");
     
             System.out.print("Enter Forest ID: ");
@@ -533,6 +575,9 @@ public class ArborDB {
 
     private static void locateTreeSpecies() {
          try {
+              if (connection == null) {
+            connect();
+            }
             CallableStatement call = connection.prepareCall("{ call locateTreeSpecies(?, ?) }");
     
             System.out.print("Enter Genus pattern: ");
@@ -586,6 +631,9 @@ public class ArborDB {
 
     private static void rankForestSensors() {
         try {
+             if (connection == null) {
+            connect();
+            }
         CallableStatement call = connection.prepareCall("{ call rankForestSensors() }");
 
         ResultSet resultSet = call.executeQuery();
@@ -630,6 +678,9 @@ public class ArborDB {
 
     private static void habitableEnvironment() {
         try {
+             if (connection == null) {
+            connect();
+            }
             CallableStatement call = connection.prepareCall("{ call habitableEnvironment(?,?,?) }");
     
             System.out.print("Enter genus: ");
@@ -686,6 +737,9 @@ public class ArborDB {
 
     private static void topSensors() {
         try {
+             if (connection == null) {
+            connect();
+            }
             CallableStatement call = connection.prepareCall("{ call topSensors(?,?) }");
     
             System.out.print("Enter k: ");
@@ -738,6 +792,9 @@ public class ArborDB {
     private static void threeDegrees() {
 
          try {
+              if (connection == null) {
+            connect();
+            }
             CallableStatement call = connection.prepareCall("{ call threeDegrees(?,?,?) }");
     
             System.out.print("Enter first forest number (f1): ");
@@ -773,6 +830,7 @@ public class ArborDB {
 
     public static void main(String[] args) {
         try {
+            
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
             System.out.println("JDBC .jar dependency not detected. Please make sure that the library is correctly loaded in and try again.");
