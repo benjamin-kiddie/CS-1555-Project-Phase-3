@@ -22,8 +22,8 @@ CREATE VIEW numSensorsInForest AS
 -- with forests with more sensors being ranked higher than
 -- forests with fewer sensors.
 CREATE OR REPLACE FUNCTION rankForestSensors() RETURNS TABLE (
-        forest_no integer,
-        rank bigint
+        rank bigint,
+        forest_no integer
     ) AS
     $$
     BEGIN

@@ -115,7 +115,6 @@ CREATE OR REPLACE PROCEDURE deleteWorker(n varchar(9)) AS
 
 -- Given sensor_id and X,Y
 -- Update sensor in sensor table
-
 CREATE OR REPLACE PROCEDURE moveSensor(sid integer, new_x real, new_y real) AS
     $$
     BEGIN
@@ -182,7 +181,8 @@ CREATE OR REPLACE FUNCTION listMaintainedSensors(n char(9)) RETURNS TABLE (
         RETURN QUERY
         SELECT s.*
         FROM SENSOR s
-        WHERE s.maintainer_id = n;
+        WHERE s.maintainer_id = n
+        ORDER BY sensor_id;
     END;
     $$ LANGUAGE plpgsql;
 

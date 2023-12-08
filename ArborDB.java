@@ -77,6 +77,13 @@ public class ArborDB {
         System.out.printf("------------------------------------------------------------------------------------------------------------------------%n");
     }
 
+    private static void printGenericSQLError(SQLException e) {
+        System.out.println("SQL Error");
+        System.out.println("Message = " + e.getMessage());
+        System.out.println("SQLState = " + e.getSQLState());
+        System.out.println("SQL Code = " + e.getErrorCode());
+    }
+
     private static void connect() {
         if (connection == null) { // If a connection is yet to be established, attempt to connect
             String user = "";
@@ -128,11 +135,14 @@ public class ArborDB {
             System.out.println("Forest added successfully.");
         // handle SQL exceptions
         } catch (SQLException e) {
-            System.out.println("SQL Error");
             while (e != null) {
-                System.out.println("Message = " + e.getMessage());
-                System.out.println("SQLState = " + e.getSQLState());
-                System.out.println("SQL Code = " + e.getErrorCode());
+                if (e.getSQLState().equals("MBRBD")) {
+                    System.out.println("Bounds for forest are inverted or will produce an area of 0. Insertion cancelled.");
+                } else if (e.getSQLState().equals("FOLAP")) {
+                    System.out.println("Forest overlaps with existing forest. Insertion cancelled.");
+                } else {
+                    printGenericSQLError(e);
+                }
                 e = e.getNextException();
             }
         // handle I/O exceptions
@@ -166,11 +176,8 @@ public class ArborDB {
             System.out.println("Tree species added successfully.");
         // handle SQL exceptions
         } catch (SQLException e) {
-            System.out.println("SQL Error");
             while (e != null) {
-                System.out.println("Message = " + e.getMessage());
-                System.out.println("SQLState = " + e.getSQLState());
-                System.out.println("SQL Code = " + e.getErrorCode());
+
                 e = e.getNextException();
             }
         // handle I/O exceptions
@@ -200,11 +207,8 @@ public class ArborDB {
             System.out.println("Species added to forest successfully.");
         // handle SQL exceptions
         } catch (SQLException e) {
-            System.out.println("SQL Error");
             while (e != null) {
-                System.out.println("Message = " + e.getMessage());
-                System.out.println("SQLState = " + e.getSQLState());
-                System.out.println("SQL Code = " + e.getErrorCode());
+                printGenericSQLError(e);
                 e = e.getNextException();
             }
         // handle I/O exceptions
@@ -215,7 +219,6 @@ public class ArborDB {
             System.out.println("The provided input is invalid, returning to the main menu.");
         }
     }
-
 
     private static void newWorker() {
         try {
@@ -241,11 +244,8 @@ public class ArborDB {
             System.out.println("Worker added successfully.");
         // handle SQL exceptions
         } catch (SQLException e) {
-            System.out.println("SQL Error");
             while (e != null) {
-                System.out.println("Message = " + e.getMessage());
-                System.out.println("SQLState = " + e.getSQLState());
-                System.out.println("SQL Code = " + e.getErrorCode());
+                printGenericSQLError(e);
                 e = e.getNextException();
             }
         // handle I/O exceptions
@@ -256,8 +256,6 @@ public class ArborDB {
             System.out.println("The provided input is invalid, returning to the main menu.");
         }
     }
-        
-   
 
     private static void employWorkerToState() {
           try {
@@ -275,11 +273,8 @@ public class ArborDB {
               System.out.println("Worker employed to state successfully.");
           // handle SQL exceptions
           } catch (SQLException e) {
-              System.out.println("SQL Error");
               while (e != null) {
-                  System.out.println("Message = " + e.getMessage());
-                  System.out.println("SQLState = " + e.getSQLState());
-                  System.out.println("SQL Code = " + e.getErrorCode());
+                  printGenericSQLError(e);
                   e = e.getNextException();
               }
           // handle I/O exceptions
@@ -311,13 +306,14 @@ public class ArborDB {
             System.out.println("Sensor placed successfully.");
         // handle SQL exceptions
         } catch (SQLException e) {
-            System.out.println("SQL Error");
-            while (e != null) {
-                System.out.println("Message = " + e.getMessage());
-                System.out.println("SQLState = " + e.getSQLState());
-                System.out.println("SQL Code = " + e.getErrorCode());
-                e = e.getNextException();
+            // if NOEMP state, sensor cannot be placed
+            if (e.getSQLState().equals("NOEMP")) {
+                System.out.println("Sensor location is outside maintainer's jurisdiction. Operation cancelled.");
+                // otherwise, report general error
+            } else {
+                printGenericSQLError(e);
             }
+            e = e.getNextException();
         // handle I/O exceptions
         } catch (IOException e) {
             System.out.println("I/O error, returning to the main menu.");
@@ -361,11 +357,8 @@ public class ArborDB {
             System.out.println("Report generated successfully.");
         // handle SQL exceptions
         } catch (SQLException e) {
-            System.out.println("SQL Error");
             while (e != null) {
-                System.out.println("Message = " + e.getMessage());
-                System.out.println("SQLState = " + e.getSQLState());
-                System.out.println("SQL Code = " + e.getErrorCode());
+                printGenericSQLError(e);
                 e = e.getNextException();
             }
         // handle I/O exceptions
@@ -382,94 +375,98 @@ public class ArborDB {
 
     private static void removeSpeciesFromForest() {
         try {
+            // verify connection, return if not established
             if (!verifyConnection()) return;
-            CallableStatement call = connection.prepareCall("{ call placeSensor(?,?,?,?) }");
-            System.out.print("Enter Energy: ");
+            // prepare SQL call
+            CallableStatement call = connection.prepareCall("CALL removeSpeciesFromForest(?,?,?)");
+            System.out.print("Enter forest no: ");
             call.setInt(1, Integer.parseInt(br.readLine()));
-            System.out.print("Enter X Location: ");
-            call.setDouble(2, Double.parseDouble(br.readLine()));
-            System.out.print("Enter Y Location: ");
-            call.setDouble(3, Double.parseDouble(br.readLine()));
-            System.out.print("Enter Maintainer ID: ");
-            call.setString(4, br.readLine());
+            System.out.print("Enter genus: ");
+            call.setString(2, br.readLine());
+            System.out.print("Enter epithet: ");
+            call.setString(3, br.readLine());
+            // execute call
             call.execute();
-            System.out.println("Sensor placed successfully.");
-         } catch (SQLException e) {
-                System.out.println("SQL Error");
-                while (e != null) {
-                    System.out.println("Message = " + e.getMessage());
-                    System.out.println("SQLState = " + e.getSQLState());
-                    System.out.println("SQL Code = " + e.getErrorCode());
-                    e = e.getNextException();
-                }
-         } catch (IOException e) {
-                System.out.println("I/O error, returning to the main menu.");
-         } catch (NumberFormatException e) {
-                System.out.println("The provided input is invalid, returning to the main menu.");
-                return;
+            // report to user
+            System.out.println("Species removed successfully.");
+        // handle SQL exceptions
+        } catch (SQLException e) {
+            while (e != null) {
+                printGenericSQLError(e);
+                e = e.getNextException();
+            }
+        // handle I/O exceptions
+        } catch (IOException e) {
+            System.out.println("I/O error, returning to the main menu.");
+        // handle format exceptions
+        } catch (NumberFormatException e) {
+            System.out.println("The provided input is invalid, returning to the main menu.");
         }
-            
     }
 
     private static void deleteWorker() {
         try {
+            // verify connection, return if not established
             if (!verifyConnection()) return;
-            CallableStatement call = connection.prepareCall("{ call deleteWorker(?) }");
-            System.out.print("Enter Worker SSN: ");
+            // prepare SQL call
+            CallableStatement call = connection.prepareCall("CALL deleteWorker(?)");
+            System.out.print("Enter worker SSN: ");
             String ssn = br.readLine();
             call.setString(1, ssn);
-    
+            // execute call
             call.execute();
+            // report to user
             System.out.println("Worker with SSN " + ssn + " deleted successfully.");
+        // handle SQL exceptions
         } catch (SQLException e) {
-            System.out.println("SQL Error");
             while (e != null) {
-                System.out.println("Message = " + e.getMessage());
-                System.out.println("SQLState = " + e.getSQLState());
-                System.out.println("SQL Code = " + e.getErrorCode());
+                printGenericSQLError(e);
                 e = e.getNextException();
             }
+        // handle I/O exceptions
         } catch (IOException e) {
             System.out.println("I/O error, returning to the main menu.");
-            return;
         }
         
     }
 
     private static void moveSensor() {
          try {
+             // verify connection, return if not established
              if (!verifyConnection()) return;
-            CallableStatement call = connection.prepareCall("{ call moveSensor(?,?,?) }");
-            System.out.print("Enter Sensor ID: ");
-            int sensorId = Integer.parseInt(br.readLine());
-            call.setInt(1, sensorId);
-            
-            System.out.print("Enter new X location: ");
-            double newX = Double.parseDouble(br.readLine());
-            call.setDouble(2, newX);
-            
-            System.out.print("Enter new Y location: ");
-            double newY = Double.parseDouble(br.readLine());
-            call.setDouble(3, newY);
-    
-            call.execute();
-            System.out.println("Sensor " + sensorId + " moved to new location successfully.");
-        } catch (SQLException e) {
-            System.out.println("SQL Error");
-            while (e != null) {
-                System.out.println("Message = " + e.getMessage());
-                System.out.println("SQLState = " + e.getSQLState());
-                System.out.println("SQL Code = " + e.getErrorCode());
-                e = e.getNextException();
-            }
-        } catch (IOException e) {
-            System.out.println("I/O error, returning to the main menu.");
-            return;
-        } catch (NumberFormatException e) {
-            System.out.println("The provided input is invalid, returning to the main menu.");
-            return;
-        }
-        
+             System.out.print("Enter ID of sensor to move, or enter -1 to cancel: ");
+             int sensorId = Integer.parseInt(br.readLine());
+             // if sensorId is -1, exit
+             if (sensorId == -1)
+                 return;
+             // otherwise, assemble call
+             CallableStatement call = connection.prepareCall("CALL moveSensor(?,?,?)");
+             call.setInt(1, sensorId);
+             System.out.print("Enter new X location: ");
+             call.setBigDecimal(2, new BigDecimal(br.readLine()));
+             System.out.print("Enter new Y location: ");
+             call.setBigDecimal(3, new BigDecimal(br.readLine()));
+             // execute call
+             call.execute();
+             // report to user
+             System.out.println("Sensor successfully moved to new location.");
+         // handle SQL exceptions
+         } catch (SQLException e) {
+             while (e != null) {
+                 // if NOEMP state, sensor could not be moved
+                 if (e.getSQLState().equals("NOEMP")) {
+                     System.out.println("New location is outside maintainer's jurisdiction. Operation cancelled.");
+                 // otherwise, report general error
+                 } else {
+                     printGenericSQLError(e);
+                 }
+                 e = e.getNextException();
+             }
+         } catch (IOException e) {
+             System.out.println("I/O error, returning to the main menu.");
+         } catch (NumberFormatException e) {
+             System.out.println("The provided input is invalid, returning to the main menu.");
+         }
     }
 
     private static void removeWorkerFromState() {
@@ -488,11 +485,8 @@ public class ArborDB {
             call.execute();
             System.out.println("Worker " + ssn + " removed from state " + stateAbb + " successfully.");
         } catch (SQLException e) {
-            System.out.println("SQL Error");
             while (e != null) {
-                System.out.println("Message = " + e.getMessage());
-                System.out.println("SQLState = " + e.getSQLState());
-                System.out.println("SQL Code = " + e.getErrorCode());
+                printGenericSQLError(e);
                 e = e.getNextException();
             }
         } catch (IOException e) {
@@ -530,11 +524,8 @@ public class ArborDB {
                 System.out.println("Sensor removed successfully.");
             }
         } catch (SQLException e) {
-            System.out.println("SQL Error");
             while (e != null) {
-                System.out.println("Message = " + e.getMessage());
-                System.out.println("SQLState = " + e.getSQLState());
-                System.out.println("SQL Code = " + e.getErrorCode());
+                printGenericSQLError(e);
                 e = e.getNextException();
             }
         } catch (IOException e) {
@@ -566,11 +557,8 @@ public class ArborDB {
                 displaySensorTable(resultSet);
             }
         } catch (SQLException e) {
-            System.out.println("SQL Error");
             while (e != null) {
-                System.out.println("Message = " + e.getMessage());
-                System.out.println("SQLState = " + e.getSQLState());
-                System.out.println("SQL Code = " + e.getErrorCode());
+                printGenericSQLError(e);
                 e = e.getNextException();
             }
         } catch (IOException | NumberFormatException e) {
@@ -600,11 +588,8 @@ public class ArborDB {
              }
          // handle SQL exceptions
          } catch (SQLException e) {
-             System.out.println("SQL Error");
              while (e != null) {
-                 System.out.println("Message = " + e.getMessage());
-                 System.out.println("SQLState = " + e.getSQLState());
-                 System.out.println("SQL Code = " + e.getErrorCode());
+                 printGenericSQLError(e);
                  e = e.getNextException();
              }
          // handle I/O exceptions
@@ -634,11 +619,8 @@ public class ArborDB {
                  displayForestTable(resultSet);
              }
         } catch (SQLException e) {
-            System.out.println("SQL Error");
             while (e != null) {
-                System.out.println("Message = " + e.getMessage());
-                System.out.println("SQLState = " + e.getSQLState());
-                System.out.println("SQL Code = " + e.getErrorCode());
+                printGenericSQLError(e);
                 e = e.getNextException();
             }
         } catch (IOException e) {
@@ -677,11 +659,8 @@ public class ArborDB {
             }
         // handle SQL exceptions
         } catch (SQLException e) {
-            System.out.println("SQL Error");
             while (e != null) {
-                System.out.println("Message = " + e.getMessage());
-                System.out.println("SQLState = " + e.getSQLState());
-                System.out.println("SQL Code = " + e.getErrorCode());
+                printGenericSQLError(e);
                 e = e.getNextException();
             }
         }
@@ -711,11 +690,8 @@ public class ArborDB {
             }
         // handle SQL exceptions
         } catch (SQLException e) {
-            System.out.println("SQL Error");
             while (e != null) {
-                System.out.println("Message = " + e.getMessage());
-                System.out.println("SQLState = " + e.getSQLState());
-                System.out.println("SQL Code = " + e.getErrorCode());
+                printGenericSQLError(e);
                 e = e.getNextException();
             }
         // handle I/O exceptions
@@ -746,11 +722,8 @@ public class ArborDB {
             }
         // handle SQL exceptions
         } catch (SQLException e) {
-            System.out.println("SQL Error");
             while (e != null) {
-                System.out.println("Message = " + e.getMessage());
-                System.out.println("SQLState = " + e.getSQLState());
-                System.out.println("SQL Code = " + e.getErrorCode());
+                printGenericSQLError(e);
                 e = e.getNextException();
             }
         // handle I/O exceptions
@@ -780,11 +753,8 @@ public class ArborDB {
             }
         // handle SQL exceptions
         } catch (SQLException e) {
-            System.out.println("SQL Error");
             while (e != null) {
-                System.out.println("Message = " + e.getMessage());
-                System.out.println("SQLState = " + e.getSQLState());
-                System.out.println("SQL Code = " + e.getErrorCode());
+                printGenericSQLError(e);
                 e = e.getNextException();
             }
         // handle I/O exceptions

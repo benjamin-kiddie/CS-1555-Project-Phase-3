@@ -110,10 +110,6 @@ CREATE OR REPLACE FUNCTION calculateMBRArea() RETURNS TRIGGER AS
         NEW.area = area;
          -- Return.
         RETURN NEW;
-    EXCEPTION
-        WHEN sqlstate 'MBRBD' THEN
-            RAISE NOTICE 'The given MBR bounds will result in an area of 0 or less. Operation reverted.';
-            RETURN OLD;
     END;
     $$ LANGUAGE plpgsql;
 
@@ -151,10 +147,6 @@ CREATE OR REPLACE FUNCTION checkStateOverlap() RETURNS TRIGGER AS
         END LOOP;
          -- Return.
         RETURN NEW;
-    EXCEPTION
-        WHEN sqlstate 'SOLAP' THEN
-            RAISE NOTICE 'Newly inserted/updated state will overlap with existing state. Operation reverted.';
-            RETURN OLD;
     END;
     $$ LANGUAGE plpgsql;
 
@@ -185,10 +177,6 @@ CREATE OR REPLACE FUNCTION checkForestOverlap() RETURNS TRIGGER AS
         END LOOP;
          -- Return.
         RETURN NEW;
-    EXCEPTION
-        WHEN sqlstate 'FOLAP' THEN
-            RAISE NOTICE 'Newly inserted/updated forest will overlap with existing forest. Operation reverted.';
-            RETURN OLD;
     END;
     $$ LANGUAGE plpgsql;
 
@@ -222,10 +210,6 @@ CREATE OR REPLACE FUNCTION checkMaintainerEmployment() RETURNS TRIGGER AS
         END LOOP;
         -- If X any Y position of sensor is not contained within any state, throw an exception.
         RAISE 'maintainer_not_employed_in_state' USING errcode = 'NOEMP';
-    EXCEPTION
-        WHEN sqlstate 'NOEMP' THEN
-            RAISE NOTICE 'The maintainer of this sensor is not employed by a state which covers the sensor. Operation reverted.';
-            RETURN OLD;
     END;
     $$ LANGUAGE plpgsql;
 
