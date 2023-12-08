@@ -13,15 +13,18 @@
  * Before attempting to connect, make sure that a DB session is active and all .sql file are executed via DataGrip
  */
 
-import javax.xml.transform.Result;
+import java.math.BigDecimal;
 import java.sql.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 public class ArborDB {
     private static Connection connection; // Connection to be maintained with the database
-    private static BufferedReader br = new BufferedReader(new InputStreamReader(System.in)); // For I/O
+    private static final BufferedReader br = new BufferedReader(new InputStreamReader(System.in)); // For I/O
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
 
     private static boolean verifyConnection() {
         if (connection == null) {
@@ -101,23 +104,29 @@ public class ArborDB {
 
     private static void addForest() {
         try {
+            // verify connection, return if not established
             if (!verifyConnection()) return;
-            CallableStatement call = connection.prepareCall("{ call addForest( ?,?,?,?,?,?,? ) }");
+            // prepare SQL call
+            CallableStatement call = connection.prepareCall("CALL addForest(?,?,?,?,?,?,?)");
             System.out.print("Enter name: ");
             call.setString(1, br.readLine());
             System.out.print("Enter area: ");
             call.setInt(2, Integer.parseInt(br.readLine()));
             System.out.print("Enter acid level: ");
-            call.setDouble(3, Double.parseDouble(br.readLine()));
+            call.setBigDecimal(3, new BigDecimal(br.readLine()));
             System.out.print("Enter minimum X value of MBR: ");
-            call.setDouble(4, Double.parseDouble(br.readLine()));
+            call.setBigDecimal(4, new BigDecimal(br.readLine()));
             System.out.print("Enter maximum X value of MBR: ");
-            call.setDouble(5, Double.parseDouble(br.readLine()));
+            call.setBigDecimal(5, new BigDecimal(br.readLine()));
             System.out.print("Enter minimum Y value of MBR: ");
-            call.setDouble(6, Double.parseDouble(br.readLine()));
+            call.setBigDecimal(6, new BigDecimal(br.readLine()));
             System.out.print("Enter maximum Y value of MBR: ");
-            call.setDouble(7, Double.parseDouble(br.readLine()));
+            call.setBigDecimal(7, new BigDecimal(br.readLine()));
+            // execute call
             call.execute();
+            // report to user
+            System.out.println("Forest added successfully.");
+        // handle SQL exceptions
         } catch (SQLException e) {
             System.out.println("SQL Error");
             while (e != null) {
@@ -126,30 +135,36 @@ public class ArborDB {
                 System.out.println("SQL Code = " + e.getErrorCode());
                 e = e.getNextException();
             }
+        // handle I/O exceptions
         } catch (IOException e) {
             System.out.println("I/O error, returning to main menu.");
-            return;
+        // handle format exceptions
         } catch (NumberFormatException e) {
             System.out.println("The provided input is invalid, returning to main menu.");
-            return;
         }
     }
 
     private static void addTreeSpecies() {
         try {
+            // verify connection, return if not established
             if (!verifyConnection()) return;
-            CallableStatement call = connection.prepareCall("{ call addTreeSpecies( ?,?,?,?,? ) }");
+            // prepare SQL call
+            CallableStatement call = connection.prepareCall("CALL addTreeSpecies(?,?,?,?,?)");
             System.out.print("Enter genus: ");
             call.setString(1, br.readLine());
             System.out.print("Enter epithet: ");
             call.setString(2, br.readLine());
             System.out.print("Enter temperature: ");
-            call.setDouble(3, Double.parseDouble(br.readLine()));
+            call.setBigDecimal(3, new BigDecimal(br.readLine()));
             System.out.print("Enter height: ");
-            call.setDouble(4, Double.parseDouble(br.readLine()));
+            call. setBigDecimal(4, new BigDecimal(br.readLine()));
             System.out.print("Enter Raunkiaer life form specification: ");
             call.setString(5, br.readLine());
+            // execute call
             call.execute();
+            // report to user
+            System.out.println("Tree species added successfully.");
+        // handle SQL exceptions
         } catch (SQLException e) {
             System.out.println("SQL Error");
             while (e != null) {
@@ -158,64 +173,73 @@ public class ArborDB {
                 System.out.println("SQL Code = " + e.getErrorCode());
                 e = e.getNextException();
             }
+        // handle I/O exceptions
         } catch (IOException e) {
             System.out.println("I/O error, returning to main menu.");
-            return;
+        // handle format exceptions
         } catch (NumberFormatException e) {
             System.out.println("The provided input is invalid, returning to main menu.");
-            return;
         }
     }
 
     private static void addSpeciesToForest() {
-    try {
-        if (!verifyConnection()) return;
-        CallableStatement call = connection.prepareCall("{ call addSpeciesToForest(?,?,?) }");
-        System.out.print("Enter forest_no: ");
-        call.setInt(1, Integer.parseInt(br.readLine()));
-        System.out.print("Enter genus: ");
-        call.setString(2, br.readLine());
-        System.out.print("Enter epithet: ");
-        call.setString(3, br.readLine());
-        call.execute();
-        System.out.println("Species added to forest successfully.");
-    } catch (SQLException e) {
+        try {
+            // verify connection, return if not established
+            if (!verifyConnection()) return;
+            // prepare SQL call
+            CallableStatement call = connection.prepareCall("CALL addSpeciesToForest(?,?,?)");
+            System.out.print("Enter forest no: ");
+            call.setInt(1, Integer.parseInt(br.readLine()));
+            System.out.print("Enter genus: ");
+            call.setString(2, br.readLine());
+            System.out.print("Enter epithet: ");
+            call.setString(3, br.readLine());
+            // execute call
+            call.execute();
+            // report to user
+            System.out.println("Species added to forest successfully.");
+        // handle SQL exceptions
+        } catch (SQLException e) {
             System.out.println("SQL Error");
             while (e != null) {
                 System.out.println("Message = " + e.getMessage());
                 System.out.println("SQLState = " + e.getSQLState());
                 System.out.println("SQL Code = " + e.getErrorCode());
                 e = e.getNextException();
-                }
+            }
+        // handle I/O exceptions
         } catch (IOException e) {
             System.out.println("I/O error, returning to the main menu.");
-            return;
+        // handle format exceptions
         } catch (NumberFormatException e) {
             System.out.println("The provided input is invalid, returning to the main menu.");
-            return;
         }
     }
 
 
     private static void newWorker() {
-
-     try {
-         if (!verifyConnection()) return;
-        CallableStatement call = connection.prepareCall("{ call newWorker(?,?,?,?,?,?) }");
-        System.out.print("Enter SSN: ");
-        call.setString(1, br.readLine());
-        System.out.print("Enter First name: ");
-        call.setString(2, br.readLine());
-        System.out.print("Enter Last name: ");
-        call.setString(3, br.readLine());
-        System.out.print("Enter Middle initial: ");
-        call.setString(4, br.readLine());
-        System.out.print("Enter Rank: ");
-        call.setString(5, br.readLine());
-        System.out.print("Enter State abbreviation: ");
-        call.setString(6, br.readLine());
-        call.execute();
-        System.out.println("Worker added successfully.");
+        try {
+            // verify connection, return if not established
+            if (!verifyConnection()) return;
+            // prepare SQL call
+            CallableStatement call = connection.prepareCall("CALL newWorker(?,?,?,?,?,?)");
+            System.out.print("Enter SSN: ");
+            call.setString(1, br.readLine());
+            System.out.print("Enter first name: ");
+            call.setString(2, br.readLine());
+            System.out.print("Enter last name: ");
+            call.setString(3, br.readLine());
+            System.out.print("Enter middle initial: ");
+            call.setString(4, br.readLine());
+            System.out.print("Enter rank: ");
+            call.setString(5, br.readLine());
+            System.out.print("Enter state abbreviation: ");
+            call.setString(6, br.readLine());
+            // execute call
+            call.execute();
+            // report to user
+            System.out.println("Worker added successfully.");
+        // handle SQL exceptions
         } catch (SQLException e) {
             System.out.println("SQL Error");
             while (e != null) {
@@ -224,64 +248,68 @@ public class ArborDB {
                 System.out.println("SQL Code = " + e.getErrorCode());
                 e = e.getNextException();
             }
+        // handle I/O exceptions
         } catch (IOException e) {
             System.out.println("I/O error, returning to the main menu.");
-            return;
+        // handle format exceptions
         } catch (NumberFormatException e) {
             System.out.println("The provided input is invalid, returning to the main menu.");
-            return;
         }
-
-}
+    }
         
    
 
     private static void employWorkerToState() {
           try {
+              // verify connection, return if not established
               if (!verifyConnection()) return;
-            CallableStatement call = connection.prepareCall("{ call employWorkerToState(?,?) }");
-            System.out.print("Enter State abbreviation: ");
-            call.setString(1, br.readLine());
-            System.out.print("Enter Worker SSN: ");
-            call.setString(2, br.readLine());
-            call.execute();
-            System.out.println("Worker employed to state successfully.");
-        } catch (SQLException e) {
-            System.out.println("SQL Error");
-            while (e != null) {
-                System.out.println("Message = " + e.getMessage());
-                System.out.println("SQLState = " + e.getSQLState());
-                System.out.println("SQL Code = " + e.getErrorCode());
-                e = e.getNextException();
-            }
-        } catch (IOException e) {
-            System.out.println("I/O error, returning to the main menu.");
-            return;
-        } catch (NumberFormatException e) {
-            System.out.println("The provided input is invalid, returning to the main menu.");
-            return;
-        }
-     
+              // prepare SQL call
+              CallableStatement call = connection.prepareCall("CALL employWorkerToState(?,?)");
+              System.out.print("Enter state abbreviation: ");
+              call.setString(1, br.readLine());
+              System.out.print("Enter worker SSN: ");
+              call.setString(2, br.readLine());
+              // execute call
+              call.execute();
+              // report to user
+              System.out.println("Worker employed to state successfully.");
+          // handle SQL exceptions
+          } catch (SQLException e) {
+              System.out.println("SQL Error");
+              while (e != null) {
+                  System.out.println("Message = " + e.getMessage());
+                  System.out.println("SQLState = " + e.getSQLState());
+                  System.out.println("SQL Code = " + e.getErrorCode());
+                  e = e.getNextException();
+              }
+          // handle I/O exceptions
+          } catch (IOException e) {
+              System.out.println("I/O error, returning to the main menu.");
+          // handle format exceptions
+          } catch (NumberFormatException e) {
+              System.out.println("The provided input is invalid, returning to the main menu.");
+          }
     }
 
     private static void placeSensor() {
-         try {
-             if (!verifyConnection()) return;
-            CallableStatement call = connection.prepareCall("{ call newWorker(?,?,?,?,?,?) }");
-            System.out.print("Enter SSN: ");
-            call.setString(1, br.readLine());
-            System.out.print("Enter First name: ");
-            call.setString(2, br.readLine());
-            System.out.print("Enter Last name: ");
-            call.setString(3, br.readLine());
-            System.out.print("Enter Middle initial: ");
+        try {
+            // verify connection, return if not established
+            if (!verifyConnection()) return;
+            // preparse SQL call
+            CallableStatement call = connection.prepareCall("CALL placeSensor(?,?,?,?)");
+            System.out.print("Enter energy: ");
+            call.setInt(1, Integer.parseInt(br.readLine()));
+            System.out.print("Enter X location: ");
+            call.setDouble(2, Double.parseDouble(br.readLine()));
+            System.out.print("Enter Y location: ");
+            call.setDouble(3, Double.parseDouble(br.readLine()));
+            System.out.print("Enter maintainer ID: ");
             call.setString(4, br.readLine());
-            System.out.print("Enter Rank: ");
-            call.setString(5, br.readLine());
-            System.out.print("Enter State abbreviation: ");
-            call.setString(6, br.readLine());
+            // execute SQL call
             call.execute();
-            System.out.println("Worker added successfully.");
+            // report to user
+            System.out.println("Sensor placed successfully.");
+        // handle SQL exceptions
         } catch (SQLException e) {
             System.out.println("SQL Error");
             while (e != null) {
@@ -290,30 +318,48 @@ public class ArborDB {
                 System.out.println("SQL Code = " + e.getErrorCode());
                 e = e.getNextException();
             }
+        // handle I/O exceptions
         } catch (IOException e) {
             System.out.println("I/O error, returning to the main menu.");
-            return;
+        // handle format exceptions
         } catch (NumberFormatException e) {
             System.out.println("The provided input is invalid, returning to the main menu.");
-            return;
         }
-        
     }
 
     private static void generateReport() {
         try {
+            // verify connection, return if not established
             if (!verifyConnection()) return;
-            CallableStatement call = connection.prepareCall("{ call placeSensor(?,?,?,?) }");
-            System.out.print("Enter Energy: ");
-            call.setInt(1, Integer.parseInt(br.readLine()));
-            System.out.print("Enter X Location: ");
-            call.setDouble(2, Double.parseDouble(br.readLine()));
-            System.out.print("Enter Y Location: ");
-            call.setDouble(3, Double.parseDouble(br.readLine()));
-            System.out.print("Enter Maintainer ID: ");
-            call.setString(4, br.readLine());
+            // fetch all sensors
+            PreparedStatement stmt = connection.prepareStatement("SELECT * FROM SENSOR ORDER BY sensor_id");
+            ResultSet resultSet = stmt.executeQuery();
+            // if there are no sensors in the db, inform the user and return
+            if (!resultSet.next()) {
+                System.out.println("No sensors currently deployed.");
+                return;
+            }
+            // otherwise, display all sensors
+            System.out.println("Below is a list of all sensors in the database:");
+            displaySensorTable(resultSet);
+            // prompt the user to choose one to generate a report
+            System.out.print("Enter the ID of the sensor that will generate the report, or enter -1 to cancel: ");
+            int sensorId = Integer.parseInt(br.readLine());
+            // if sensorId is -1, exit
+            if (sensorId == -1)
+                return;
+            // otherwise, prepare SQL call
+            CallableStatement call = connection.prepareCall("CALL generateReport(?,?,?)");
+            call.setInt(1, sensorId);
+            System.out.print("Enter report time (format: yyyy-MM-dd HH:mm:ss.SSSSSS): ");
+            call.setTimestamp(2, new Timestamp(dateFormat.parse(br.readLine()).getTime()));
+            System.out.print("Enter recorded temperature: ");
+            call.setBigDecimal(3, new BigDecimal(br.readLine()));
+            // execute call
             call.execute();
-            System.out.println("Sensor placed successfully.");
+            // report to user
+            System.out.println("Report generated successfully.");
+        // handle SQL exceptions
         } catch (SQLException e) {
             System.out.println("SQL Error");
             while (e != null) {
@@ -322,14 +368,16 @@ public class ArborDB {
                 System.out.println("SQL Code = " + e.getErrorCode());
                 e = e.getNextException();
             }
+        // handle I/O exceptions
         } catch (IOException e) {
             System.out.println("I/O error, returning to the main menu.");
-            return;
+        // handle format exceptions
         } catch (NumberFormatException e) {
             System.out.println("The provided input is invalid, returning to the main menu.");
-            return;
+        // handle parse exception
+        } catch (ParseException e) {
+            System.out.println("Provided timestamp is invalid, returning to the main menu.");
         }
-        
     }
 
     private static void removeSpeciesFromForest() {
@@ -356,7 +404,6 @@ public class ArborDB {
                 }
          } catch (IOException e) {
                 System.out.println("I/O error, returning to the main menu.");
-                return;
          } catch (NumberFormatException e) {
                 System.out.println("The provided input is invalid, returning to the main menu.");
                 return;
