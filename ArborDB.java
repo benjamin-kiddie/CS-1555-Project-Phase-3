@@ -470,28 +470,30 @@ public class ArborDB {
     }
 
     private static void removeWorkerFromState() {
-
         try {
+            // verify connection, return if not established
             if (!verifyConnection()) return;
-            CallableStatement call = connection.prepareCall("{ call removeWorkerFromState(?,?) }");
-            System.out.print("Enter Worker SSN: ");
+            // prepare SQL call
+            CallableStatement call = connection.prepareCall("CALL removeWorkerFromState(?,?)");
+            System.out.print("Enter worker SSN: ");
             String ssn = br.readLine();
             call.setString(1, ssn);
-            
-            System.out.print("Enter State Abbreviation: ");
+            System.out.print("Enter state abbreviation: ");
             String stateAbb = br.readLine();
             call.setString(2, stateAbb);
-    
+            // execute call
             call.execute();
+            // report to user
             System.out.println("Worker " + ssn + " removed from state " + stateAbb + " successfully.");
+        // handle SQL exceptions
         } catch (SQLException e) {
             while (e != null) {
                 printGenericSQLError(e);
                 e = e.getNextException();
             }
+        // handle I/O exceptions
         } catch (IOException e) {
             System.out.println("I/O error, returning to the main menu.");
-            return;
         }
         
     }
