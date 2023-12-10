@@ -208,7 +208,11 @@ public class ArborDB {
         // handle SQL exceptions
         } catch (SQLException e) {
             while (e != null) {
-                printGenericSQLError(e);
+                if (e.getSQLState().equals("23503")) {
+                    System.out.println("Provided species or forest does not exist.");
+                } else {
+                    printGenericSQLError(e);
+                }
                 e = e.getNextException();
             }
         // handle I/O exceptions
@@ -263,9 +267,9 @@ public class ArborDB {
               if (!verifyConnection()) return;
               // prepare SQL call
               CallableStatement call = connection.prepareCall("CALL employWorkerToState(?,?)");
-              System.out.print("Enter state abbreviation: ");
-              call.setString(1, br.readLine());
               System.out.print("Enter worker SSN: ");
+              call.setString(1, br.readLine());
+              System.out.print("Enter state abbreviation: ");
               call.setString(2, br.readLine());
               // execute call
               call.execute();
@@ -274,7 +278,11 @@ public class ArborDB {
           // handle SQL exceptions
           } catch (SQLException e) {
               while (e != null) {
-                  printGenericSQLError(e);
+                  if (e.getSQLState().equals("23503")) {
+                      System.out.println("Provided worker or state does not exist.");
+                  } else {
+                      printGenericSQLError(e);
+                  }
                   e = e.getNextException();
               }
           // handle I/O exceptions
@@ -358,7 +366,11 @@ public class ArborDB {
         // handle SQL exceptions
         } catch (SQLException e) {
             while (e != null) {
-                printGenericSQLError(e);
+                if (e.getSQLState().equals("23503")) {
+                    System.out.println("Provided sensor does not exist.");
+                } else {
+                    printGenericSQLError(e);
+                }
                 e = e.getNextException();
             }
         // handle I/O exceptions
@@ -493,7 +505,7 @@ public class ArborDB {
             // execute call
             call.execute();
             // report to user
-            System.out.println("Worker " + ssn + " removed from state " + stateAbb + " successfully.");
+            System.out.println("Worker successfully removed from state.");
         // handle SQL exceptions
         } catch (SQLException e) {
             while (e != null) {
@@ -514,7 +526,6 @@ public class ArborDB {
             // fetch all sensors
             Statement stmt = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
             ResultSet resultSet = stmt.executeQuery("SELECT * FROM SENSOR ORDER BY sensor_id");
-
             // if there are no sensors in the db, inform the user and return
             if (!resultSet.next()) {
                 System.out.println("No sensors currently deployed.");
@@ -616,7 +627,7 @@ public class ArborDB {
             if (!verifyConnection()) return;
             // prepare SQL call
             PreparedStatement stmt = connection.prepareStatement("SELECT * FROM listSensors(?)");
-            System.out.print("Enter Forest No: ");
+            System.out.print("Enter forest no: ");
             stmt.setInt(1, Integer.parseInt(br.readLine()));
             // put results in resultSet
             ResultSet resultSet = stmt.executeQuery();
@@ -646,7 +657,7 @@ public class ArborDB {
              if (!verifyConnection()) return;
              // prepare SQL call
              PreparedStatement stmt = connection.prepareStatement("SELECT * FROM listMaintainedSensors(?)");
-             System.out.print("Enter Worker SSN: ");
+             System.out.print("Enter worker SSN: ");
              stmt.setString(1, br.readLine());
              // put results in resultSet
              ResultSet resultSet = stmt.executeQuery();
@@ -676,15 +687,15 @@ public class ArborDB {
              if (!verifyConnection()) return;
              // prepare SQL call
              PreparedStatement stmt = connection.prepareStatement("SELECT * FROM locateTreeSpecies(?, ?)");
-             System.out.print("Enter Genus pattern: ");
+             System.out.print("Enter genus pattern: ");
              stmt.setString(1, br.readLine());
-             System.out.print("Enter Epithet pattern: ");
+             System.out.print("Enter epithet pattern: ");
              stmt.setString(2, br.readLine());
              // put results in resultSet
              ResultSet resultSet = stmt.executeQuery();
              // if no results, inform user
              if (!resultSet.next()) {
-                 System.out.println("No forests found with the specified tree species pettern.");
+                 System.out.println("No forests found with the specified tree species pattern.");
              // otherwise, display results
              } else {
                  System.out.println("Forests with tree species matching the given pattern:");
@@ -697,7 +708,6 @@ public class ArborDB {
             }
         } catch (IOException e) {
             System.out.println("I/O error, returning to main menu.");
-            return;
         }
 
     }
@@ -744,9 +754,9 @@ public class ArborDB {
             if (!verifyConnection()) return;
             // prepare SQL call
             PreparedStatement stmt = connection.prepareStatement("SELECT * FROM habitableEnvironment(?,?,?)");
-            System.out.print("Enter Genus: ");
+            System.out.print("Enter genus: ");
             stmt.setString(1, br.readLine());
-            System.out.print("Enter Epithet: ");
+            System.out.print("Enter epithet: ");
             stmt.setString(2, br.readLine());
             System.out.print("Enter k (years from present to consider): ");
             stmt.setInt(3, Integer.parseInt(br.readLine()));
@@ -754,7 +764,7 @@ public class ArborDB {
             ResultSet resultSet = stmt.executeQuery();
             // if no results, inform user
             if (!resultSet.next()) {
-                System.out.println("No habitable environments were found for the given species.");
+                System.out.println("No habitable environments were found for the given species in the given time frame");
             // otherwise, display results
             } else {
                 System.out.println("Habitable forests for the given species:");
@@ -810,9 +820,9 @@ public class ArborDB {
             if (!verifyConnection()) return;
             // prepare SQL call
             PreparedStatement stmt = connection.prepareStatement("SELECT * FROM threeDegrees(?,?)");
-            System.out.print("Enter first Forest No (f1): ");
+            System.out.print("Enter first forest no (f1): ");
             stmt.setInt(1, Integer.parseInt(br.readLine()));
-            System.out.print("Enter second Forest No (f2): ");
+            System.out.print("Enter second forest no (f2): ");
             stmt.setInt(2, Integer.parseInt(br.readLine()));
             // put results in resultSet
             ResultSet rslt = stmt.executeQuery();
