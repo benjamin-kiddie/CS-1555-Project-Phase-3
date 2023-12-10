@@ -512,8 +512,9 @@ public class ArborDB {
             // verify connection, return if not established
             if (!verifyConnection()) return;
             // fetch all sensors
-            Statement stmt = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            Statement stmt = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
             ResultSet resultSet = stmt.executeQuery("SELECT * FROM SENSOR ORDER BY sensor_id");
+
             // if there are no sensors in the db, inform the user and return
             if (!resultSet.next()) {
                 System.out.println("No sensors currently deployed.");
