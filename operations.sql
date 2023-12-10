@@ -137,7 +137,7 @@ CREATE OR REPLACE PROCEDURE removeWorkerFromState(n char(9), abb char(2)) AS
 
 -- Given sensor_id
 -- delete sensor entry from sensor table.
-CREATE OR REPLACE PROCEDURE removerSensor(sid integer)AS
+CREATE OR REPLACE PROCEDURE removeSensor(sid integer) AS
     $$
     BEGIN
         DELETE FROM SENSOR

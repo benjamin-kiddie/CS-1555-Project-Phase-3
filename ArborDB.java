@@ -434,6 +434,15 @@ public class ArborDB {
          try {
              // verify connection, return if not established
              if (!verifyConnection()) return;
+             // fetch all sensors
+             PreparedStatement stmt = connection.prepareStatement("SELECT * FROM SENSOR ORDER BY sensor_id");
+             ResultSet resultSet = stmt.executeQuery();
+             // if there are no sensors in the db, inform the user and return
+             if (!resultSet.next()) {
+                 System.out.println("No sensors currently deployed.");
+                 return;
+             }
+             // otherwise, ask user for sensor to move
              System.out.print("Enter ID of sensor to move, or enter -1 to cancel: ");
              int sensorId = Integer.parseInt(br.readLine());
              // if sensorId is -1, exit
@@ -499,45 +508,105 @@ public class ArborDB {
     }
 
     private static void removeSensor() {
-
         try {
+            // verify connection, return if not established
             if (!verifyConnection()) return;
-            CallableStatement call = connection.prepareCall("{ call removeSensor(?) }");
-            
-            System.out.print("Do you want to remove all sensors? (yes/no): ");
-            String response = br.readLine().toLowerCase();
-            
-            if (response.equals("yes")) {
-                call.setNull(1, Types.INTEGER);  // Null parameter to indicate removing all sensors
-            } else if (response.equals("no")) {
-                System.out.print("Enter Sensor ID to remove: ");
-                int sensorId = Integer.parseInt(br.readLine());
-                call.setInt(1, sensorId);
-            } else {
-                System.out.println("Invalid response. Returning to the main menu.");
+            // fetch all sensors
+            Statement stmt = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            ResultSet resultSet = stmt.executeQuery("SELECT * FROM SENSOR ORDER BY sensor_id");
+            // if there are no sensors in the db, inform the user and return
+            if (!resultSet.next()) {
+                System.out.println("No sensors currently deployed.");
                 return;
             }
-    
-            call.execute();
-            
-            if (response.equals("yes")) {
-                System.out.println("All sensors removed successfully.");
+            // otherwise, ask user if they want to remove all or select sensors
+            System.out.print("Would you like to remove 'all' sensors or 'select' sensors for removal? ");
+            String c = br.readLine().toLowerCase();
+            // if user chooses all
+            if (c.equals("all")) {
+                // ask for confirmation
+                System.out.print("Are you sure? Enter 'yes' to confirm or 'no' to cancel: ");
+                String c2 = br.readLine().toLowerCase();
+                // if confirmed, remove all sensors
+                if (c2.equals("yes")) {
+                    CallableStatement call = connection.prepareCall("DELETE FROM SENSOR");
+                    call.execute();
+                    System.out.println("All sensors removed.");
+                // if not confirmed, return to menu
+                } else if (c2.equals("no")) {
+                    System.out.println("No sensors were removed.");
+                // if invalid response, return to menu
+                } else {
+                    System.out.println("Invalid response. Returning to main menu.");
+                }
+            // if user chooses select
+            } else if (c.equals("select")) {
+                int d = 0;
+                do {
+                    // formatted table-style display
+                    System.out.printf("--------------------------------------------------------------------------------------------------------------%n");
+                    System.out.printf("| %-9s | %-21s | %-6s | %-21s | %-9s | %-9s | %-13s |%n", "Sensor ID", "Last Charged", "Energy", "Last Read", "X", "Y", "Maintainer ID");
+                    System.out.printf("--------------------------------------------------------------------------------------------------------------%n");
+                    // display column data
+                    int sensorId = resultSet.getInt("sensor_id");
+                    Timestamp lastCharged = resultSet.getTimestamp("last_charged");
+                    int energy = resultSet.getInt("energy");
+                    Timestamp lastRead = resultSet.getTimestamp("last_read");
+                    double sensorX = resultSet.getDouble("X");
+                    double sensorY = resultSet.getDouble("Y");
+                    String maintainerId = resultSet.getString("maintainer_id");
+                    System.out.printf("| %-9s | %-21s | %-6s | %-21s | %-9s | %-9s | %-13s |%n",
+                            sensorId, lastCharged, energy, lastRead, sensorX, sensorY, maintainerId);
+                    // end table
+                    System.out.printf("--------------------------------------------------------------------------------------------------------------%n");
+                    // prompt user to enter sensorId for confirmation
+                    System.out.println("Enter sensor ID to remove, 0 to skip, or -1 to return to menu.");
+                    try {
+                        d = Integer.parseInt(br.readLine());
+                    // if input is not in integer format, warn user and decrement resultSet, then advance
+                    } catch (NumberFormatException e) {
+                        System.out.println("Please enter the sensor ID, 0, or -1.");
+                        resultSet.previous();
+                        continue;
+                    }
+                    // if input matches sensor id
+                    if (d == sensorId) {
+                        // prep call
+                        CallableStatement call = connection.prepareCall("CALL removeSensor(?)");
+                        call.setInt(1, sensorId);
+                        // execute call
+                        call.execute();
+                        // inform user
+                        System.out.println("Sensor removed.");
+                    // if input is 0, move forward
+                    } else if (d == 0) {
+                        continue;
+                    // if input is -1, exit to menu
+                    } else if (d == -1) {
+                        return;
+                    // if input is none of these, tell the user and move the set backwards
+                    } else {
+                        System.out.println("Please enter the sensor ID, 0, or -1.");
+                        resultSet.previous();
+                    }
+                // stop when list of sensors ends
+                } while (resultSet.next());
             } else {
-                System.out.println("Sensor removed successfully.");
+                System.out.println("Invalid response. Returning to main menu.");
             }
+        // handle SQL exceptions
         } catch (SQLException e) {
             while (e != null) {
                 printGenericSQLError(e);
                 e = e.getNextException();
             }
+        // handle I/O exceptions
         } catch (IOException e) {
             System.out.println("I/O error, returning to the main menu.");
-            return;
+        // handle format exceptions
         } catch (NumberFormatException e) {
             System.out.println("The provided input is invalid, returning to the main menu.");
-            return;
         }
-            
     }
 
     private static void listSensors() {
