@@ -208,6 +208,7 @@ public class ArborDB {
         // handle SQL exceptions
         } catch (SQLException e) {
             while (e != null) {
+                // foreign key error
                 if (e.getSQLState().equals("23503")) {
                     System.out.println("Provided species or forest does not exist.");
                 } else {
@@ -278,6 +279,7 @@ public class ArborDB {
           // handle SQL exceptions
           } catch (SQLException e) {
               while (e != null) {
+                  // foreign key error
                   if (e.getSQLState().equals("23503")) {
                       System.out.println("Provided worker or state does not exist.");
                   } else {
@@ -314,8 +316,11 @@ public class ArborDB {
             System.out.println("Sensor placed successfully.");
         // handle SQL exceptions
         } catch (SQLException e) {
-            // if NOEMP state, sensor cannot be placed
-            if (e.getSQLState().equals("NOEMP")) {
+            // foreign key error
+            if (e.getSQLState().equals("23503")) {
+                System.out.println("Provided worker or state does not exist.");
+                // if NOEMP state, sensor cannot be placed
+            } else if (e.getSQLState().equals("NOEMP")) {
                 System.out.println("Sensor location is outside maintainer's jurisdiction. Operation cancelled.");
                 // otherwise, report general error
             } else {
@@ -366,6 +371,7 @@ public class ArborDB {
         // handle SQL exceptions
         } catch (SQLException e) {
             while (e != null) {
+                // foreign key error
                 if (e.getSQLState().equals("23503")) {
                     System.out.println("Provided sensor does not exist.");
                 } else {
@@ -474,8 +480,11 @@ public class ArborDB {
          // handle SQL exceptions
          } catch (SQLException e) {
              while (e != null) {
+                 // foreign key error
+                 if (e.getSQLState().equals("23503")) {
+                     System.out.println("Provided sensor does not exist.");
                  // if NOEMP state, sensor could not be moved
-                 if (e.getSQLState().equals("NOEMP")) {
+                 } else if (e.getSQLState().equals("NOEMP")) {
                      System.out.println("New location is outside maintainer's jurisdiction. Operation cancelled.");
                  // otherwise, report general error
                  } else {
